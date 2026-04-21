@@ -520,159 +520,124 @@ input::placeholder { color: var(--sumi-5); font-weight: 300; font-style: italic;
 }
 .prev-toggle:hover, .prev-toggle.open { background: var(--wa-2); color: var(--sumi); border-color: var(--sumi-3); }
 
-/* ══ イベントカード EVENT CARDS ══ */
+/* ══ イベントカード EVENT CARDS — single-line ══ */
 .event-item {
-  display: grid;
-  grid-template-columns: 78px 1fr auto;
-  align-items: stretch;
-  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 9px 0 9px 14px;
+  margin-bottom: 2px;
   background: var(--wa);
-  border: 1px solid var(--sumi-6);
+  border-bottom: 1px solid var(--sumi-6);
   position: relative;
-  transition: all .2s var(--ease);
-  animation: paperIn .35s var(--ease-out) both;
-  box-shadow: 0 1px 4px rgba(26,21,16,.05), 0 0 0 0 transparent;
+  transition: all .18s var(--ease);
+  animation: paperIn .3s var(--ease-out) both;
 }
 @keyframes paperIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.event-item::after {
+.event-item::before {
   content: '';
   position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-  background: var(--shu); transition: all .2s var(--ease);
+  background: var(--shu); flex-shrink: 0;
 }
-.event-item:hover {
-  border-color: var(--sumi-4);
-  box-shadow: 2px 2px 0 var(--wa-shadow), 0 4px 16px rgba(26,21,16,.1);
-  transform: translate(-1px, -1px);
-}
-.event-item.is-editing::after  { background: var(--midori); }
-.event-item.is-editing { border-color: rgba(74,112,85,.4); box-shadow: 0 0 0 1px rgba(74,112,85,.15); }
-.event-item.is-multi::after   { background: var(--kohaku); }
-.event-item.is-past {
-  opacity: .55;
-  box-shadow: none;
-  background: var(--wa-2);
-}
-.event-item.is-past:hover { opacity: .9; }
+.event-item:hover { background: var(--wa-2); }
+.event-item.is-editing::before { background: var(--midori); }
+.event-item.is-editing { background: var(--midori-wash); }
+.event-item.is-multi::before { background: var(--kohaku); }
+.event-item.is-past { opacity: .55; }
+.event-item.is-past:hover { opacity: .85; background: var(--wa-2); }
 
-/* 日付スタンプ Date stamp */
-.event-stele {
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 12px 8px;
-  background: var(--wa-2);
-  border-right: 1px solid var(--sumi-6);
-  position: relative; min-width: 78px;
+/* 一行レイアウト Single-line body */
+.event-line {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 6px;
+  min-width: 0;
+  line-height: 1.65;
 }
-/* Hole punch effect */
-.event-stele::before {
-  content: ''; position: absolute;
-  top: 50%; left: -1px;
-  transform: translateY(-50%);
-  width: 5px; height: 28px;
-  background: var(--wa-3);
-  border-right: 1px solid var(--sumi-6);
-  border-top-right-radius: 3px;
-  border-bottom-right-radius: 3px;
-}
-.event-stele .month-year {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 9.5px; letter-spacing: 2px; color: var(--sumi-4);
-  margin-bottom: 1px; text-transform: uppercase; font-weight: 500;
-}
-.event-stele .day-num {
-  font-family: 'Shippori Mincho', serif; font-weight: 700;
-  font-size: 36px; line-height: .95; color: var(--shu);
-  letter-spacing: -.02em;
-  font-feature-settings: 'tnum' on, 'lnum' on;
-}
-.is-multi   .event-stele .day-num { color: var(--kohaku); }
-.is-editing .event-stele .day-num { color: var(--midori); }
-.is-past    .event-stele .day-num { color: var(--sumi-4); }
-.event-stele .weekday {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 9.5px; letter-spacing: 2.5px; font-weight: 600;
-  color: var(--shu); margin-top: 5px; text-transform: uppercase;
-  padding: 1px 7px; background: var(--shu-wash);
-  border: 1px solid rgba(192,57,43,.2);
-}
-.is-multi   .event-stele .weekday { color: var(--kohaku); background: var(--kohaku-wash); border-color: rgba(176,125,46,.25); }
-.is-editing .event-stele .weekday { color: var(--midori); background: var(--midori-wash); border-color: rgba(74,112,85,.25); }
-.is-past    .event-stele .weekday { color: var(--sumi-4); background: var(--wa-3); border-color: var(--sumi-6); }
 
-/* 本文 Content body */
-.event-body {
-  display: flex; flex-direction: column; justify-content: center;
-  gap: 6px; min-width: 0; padding: 14px 18px;
+.ev-date {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12.5px; font-weight: 500;
+  color: var(--sumi-3); letter-spacing: .5px;
+  white-space: nowrap; flex-shrink: 0;
 }
-.event-time-pill {
-  display: inline-flex; align-items: center; gap: 7px;
-  font-family: 'IBM Plex Mono', monospace; font-size: 11.5px;
-  letter-spacing: 1px; font-weight: 500; color: var(--shu);
-  padding: 3px 11px; background: var(--shu-wash);
-  border: 1px solid rgba(192,57,43,.2);
-  width: fit-content; font-feature-settings: 'tnum' on;
+.is-past .ev-date { color: var(--sumi-4); }
+
+.ev-time {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12.5px; font-weight: 600;
+  color: var(--shu); white-space: nowrap; flex-shrink: 0;
+  font-feature-settings: 'tnum' on;
 }
-.is-multi   .event-time-pill { color: var(--kohaku); background: var(--kohaku-wash); border-color: rgba(176,125,46,.25); }
-.is-editing .event-time-pill { color: var(--midori); background: var(--midori-wash); border-color: rgba(74,112,85,.25); }
-.is-past    .event-time-pill { color: var(--sumi-4); background: var(--wa-3); border-color: var(--sumi-6); }
-.event-time-pill::before {
-  content: ''; width: 4px; height: 4px; background: currentColor;
-  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-  flex-shrink: 0;
+.is-multi   .ev-time { color: var(--kohaku); }
+.is-editing .ev-time { color: var(--midori); }
+.is-past    .ev-time { color: var(--sumi-4); }
+
+.ev-sep {
+  font-size: 12px; color: var(--sumi-5);
+  flex-shrink: 0; user-select: none;
 }
-.event-content {
+.ev-dash {
+  font-size: 13px; color: var(--sumi-4);
+  flex-shrink: 0; user-select: none; margin: 0 1px;
+}
+
+.ev-content {
   font-family: 'Noto Serif TC', 'Shippori Mincho', serif;
-  font-size: 16px; font-weight: 500; line-height: 1.5;
+  font-size: 15.5px; font-weight: 500;
   color: var(--sumi); word-break: break-word; letter-spacing: .02em;
 }
-.is-past .event-content { color: var(--sumi-3); }
-.event-meta-row {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 2px;
+.is-past .ev-content { color: var(--sumi-3); }
+
+.ev-location {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11.5px; color: var(--ai);
+  white-space: nowrap; letter-spacing: .5px;
+  flex-shrink: 0;
 }
-.event-location {
-  font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .5px;
-  color: var(--ai); display: inline-flex; align-items: center; gap: 5px; word-break: break-word;
-}
-.event-location::before { content: '◎'; font-size: 10px; color: var(--ai); }
-.event-author {
-  font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 1.5px;
-  color: var(--sumi-4); text-transform: uppercase; font-weight: 500;
-  padding: 1px 8px; background: var(--wa-2);
-  border: 1px solid var(--sumi-6);
-}
-.event-author::before { content: '✎ '; color: var(--sumi-4); font-size: 10px; }
-.event-day-badge {
-  font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; font-weight: 700;
-  background: var(--kohaku); color: white; padding: 2px 8px; letter-spacing: 1px;
+.ev-author {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11.5px; color: var(--sumi-4);
+  white-space: nowrap; letter-spacing: .5px;
 }
 
-/* 操作 Actions panel */
+.event-day-badge {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700;
+  background: var(--kohaku); color: white; padding: 1px 6px; letter-spacing: 1px;
+  vertical-align: middle; white-space: nowrap;
+}
+
+/* 操作 Actions — horizontal right */
 .item-actions {
-  display: flex; flex-direction: column; gap: 0;
-  align-items: stretch; justify-content: center;
-  padding: 12px 10px; background: var(--wa-2);
-  border-left: 1px solid var(--sumi-6); min-width: 68px;
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0 12px 0 14px;
 }
 .btn-edit, .btn-delete, .btn-gcal {
-  background: var(--wa); border: 1px solid var(--sumi-6);
-  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
-  letter-spacing: 1.5px; padding: 6px 8px; cursor: pointer;
+  background: none;
+  border: 1px solid var(--sumi-6);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: 1.5px;
+  padding: 4px 9px; cursor: pointer;
   transition: all .15s var(--ease); white-space: nowrap;
-  text-decoration: none; display: block; line-height: 1.5;
-  text-align: center; text-transform: uppercase; font-weight: 600;
-  margin-bottom: 5px; color: var(--sumi-3);
-  box-shadow: 1px 1px 0 var(--sumi-6);
+  text-decoration: none; display: inline-block;
+  line-height: 1.5; text-align: center;
+  text-transform: uppercase; font-weight: 600;
 }
-.btn-gcal:last-child, .btn-delete:last-child { margin-bottom: 0; }
-.btn-gcal   { color: var(--ai);    border-color: rgba(44,79,124,.35); margin-bottom: 5px; }
-.btn-edit   { color: var(--midori); border-color: rgba(74,112,85,.35); margin-bottom: 5px; }
-.btn-delete { color: var(--shu);   border-color: rgba(192,57,43,.35); margin-bottom: 0; }
-.btn-gcal:hover   { background: var(--ai-wash);    border-color: var(--ai);    box-shadow: 2px 2px 0 var(--ai); transform: translate(-1px,-1px); }
-.btn-edit:hover   { background: var(--midori-wash); border-color: var(--midori); box-shadow: 2px 2px 0 var(--midori); transform: translate(-1px,-1px); }
-.btn-delete:hover { background: var(--shu-wash);   border-color: var(--shu);   box-shadow: 2px 2px 0 var(--shu); transform: translate(-1px,-1px); }
+.btn-gcal   { color: var(--ai);    border-color: rgba(44,79,124,.4); }
+.btn-edit   { color: var(--midori); border-color: rgba(74,112,85,.4); }
+.btn-delete { color: var(--shu);   border-color: rgba(192,57,43,.4); }
+.btn-gcal:hover   { background: var(--ai-wash);     border-color: var(--ai);    box-shadow: 1px 1px 0 var(--ai); }
+.btn-edit:hover   { background: var(--midori-wash);  border-color: var(--midori); box-shadow: 1px 1px 0 var(--midori); }
+.btn-delete:hover { background: var(--shu-wash);    border-color: var(--shu);   box-shadow: 1px 1px 0 var(--shu); }
 
 /* ══ 空状態 EMPTY / LOADING ══ */
 .loading-state, .empty-state {
@@ -712,13 +677,11 @@ input::placeholder { color: var(--sumi-5); font-weight: 300; font-style: italic;
   .form-grid { grid-template-columns: 1fr 1fr; gap: 18px; }
   .form-field.full, .form-field.span2 { grid-column: 1/-1; }
   .section-title { font-size: 17px; }
-  .event-item { grid-template-columns: 68px 1fr; }
-  .item-actions {
-    grid-column: 1/-1; flex-direction: row; flex-wrap: wrap;
-    border-top: 1px solid var(--sumi-6); border-left: none; padding: 10px 12px; background: var(--wa-2);
-  }
-  .btn-edit, .btn-delete, .btn-gcal { margin-bottom: 0; flex: 1; }
-  .event-stele .day-num { font-size: 30px; }
+  .event-item { flex-wrap: wrap; padding: 10px 10px 10px 14px; }
+  .event-line { gap: 0 5px; }
+  .item-actions { padding: 6px 0 0; flex-wrap: wrap; width: 100%; justify-content: flex-end; }
+  .ev-date, .ev-time { font-size: 11.5px; }
+  .ev-content { font-size: 14.5px; }
   .toast { bottom: 20px; right: 20px; left: 20px; text-align: center; }
 }
 </style>
@@ -1348,7 +1311,6 @@ function renderItem(e, isPast, isSearching) {
   var isEditing = e.fbKey === editingKey;
   var isMulti   = !!e.groupId;
 
-  // Strip multi-day suffix from display content
   var rawContent = (e.content || '').replace(/（第\s*\d+\s*天／共\s*\d+\s*天）$/, '').trimEnd();
   var displayContent = isSearching ? highlight(rawContent) : esc(rawContent);
 
@@ -1363,34 +1325,48 @@ function renderItem(e, isPast, isSearching) {
   if (isMulti)   classes += ' is-multi';
   if (isPast)    classes += ' is-past';
 
-  // Parse date for stele
   var parts = e.date.split('-');
   var mm = parts[1], dd = parts[2], yy = parts[0];
-  var WD_ABBR = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-  var dow = dowFromYMD(+yy, +mm, +dd);
-  var wdAbbr = WD_ABBR[dow];
+  var WD_ZH = ['日','一','二','三','四','五','六'];
+  var dow   = dowFromYMD(+yy, +mm, +dd);
+  var wdZh  = WD_ZH[dow];
 
-  var gcalLink = buildGcalLink(e);
-
+  // ── Single-line layout ──────────────────────────────────────────
+  // [mm/dd（週X）] · [時間] — [內容] [badge] · [📍地點] · [✎填表人]
   var h = '<div class="' + classes + '">';
-  // Date stele
-  h += '<div class="event-stele">';
-  h += '<span class="month-year">' + yy + '.' + mm + '</span>';
-  h += '<span class="day-num">' + dd + '</span>';
-  h += '<span class="weekday">' + wdAbbr + '</span>';
+  h += '<div class="event-line">';
+
+  // Date chip
+  h += '<span class="ev-date">' + mm + '/' + dd + '（' + wdZh + '）</span>';
+
+  // Time
+  if (timeStr) {
+    h += '<span class="ev-sep">·</span>';
+    h += '<span class="ev-time">' + timeStr + '</span>';
+  }
+
+  // Dash separator
+  h += '<span class="ev-dash">—</span>';
+
+  // Content + day badge
+  h += '<span class="ev-content">' + displayContent + '</span>';
+  if (dayBadge) h += ' ' + dayBadge;
+
+  // Location
+  if (e.location) {
+    h += '<span class="ev-sep">·</span>';
+    h += '<span class="ev-location">◎ ' + esc(e.location) + '</span>';
+  }
+
+  // Author
+  if (e.author) {
+    h += '<span class="ev-sep">·</span>';
+    h += '<span class="ev-author">✎ ' + esc(e.author) + '</span>';
+  }
+
   h += '</div>';
 
-  // Body
-  h += '<div class="event-body">';
-  if (timeStr) h += '<span class="event-time-pill">' + timeStr + '</span>';
-  h += '<div class="event-content">' + displayContent + (dayBadge ? ' ' + dayBadge : '') + '</div>';
-  var metaParts = [];
-  if (e.location) metaParts.push('<span class="event-location">' + esc(e.location) + '</span>');
-  if (e.author)   metaParts.push('<span class="event-author">' + esc(e.author) + '</span>');
-  if (metaParts.length) h += '<div class="event-meta-row">' + metaParts.join('') + '</div>';
-  h += '</div>';
-
-  // Actions
+  // Actions — horizontal row on the right
   h += '<div class="item-actions">';
   h += '<a class="btn-gcal" href="https://calendar.google.com/calendar/embed?src=ibsh.tw_4i9h77tjgvq1964bmbgqedftpo%40group.calendar.google.com&ctz=Asia%2FTaipei" target="_blank">GCal</a>';
   h += '<button class="btn-edit" onclick="startEdit(\'' + e.fbKey + '\')"' + (isEditing ? ' disabled style="opacity:.4"' : '') + '>修改</button>';
