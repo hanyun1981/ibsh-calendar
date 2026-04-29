@@ -386,6 +386,51 @@ input::placeholder { color: var(--sumi-5); font-weight: 300; font-style: italic;
   from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+/* ── 衝突警示 Conflict notice ── */
+.conflict-notice {
+  grid-column: 1/-1;
+  font-family: 'Noto Serif TC', 'Shippori Mincho', serif;
+  font-size: 13px; line-height: 1.6;
+  color: var(--shu);
+  background: var(--shu-wash);
+  border: 1px solid rgba(192,57,43,.3);
+  border-left: 3px solid var(--shu);
+  padding: 12px 16px;
+  display: none;
+  animation: fadeSlide .25s var(--ease-out);
+}
+.conflict-notice.visible { display: block; }
+.conflict-notice .conflict-head {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px; font-weight: 600; letter-spacing: 2px;
+  color: var(--shu); text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.conflict-notice .conflict-list {
+  list-style: none; padding: 0; margin: 0;
+}
+.conflict-notice .conflict-list li {
+  padding: 4px 0;
+  border-top: 1px dashed rgba(192,57,43,.2);
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline;
+}
+.conflict-notice .conflict-list li:first-child { border-top: none; }
+.conflict-notice .c-date {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11.5px;
+  color: var(--sumi-2); white-space: nowrap;
+}
+.conflict-notice .c-time {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11.5px;
+  font-weight: 600; color: var(--shu); white-space: nowrap;
+}
+.conflict-notice .c-content {
+  font-size: 13.5px; color: var(--sumi);
+}
+.conflict-notice .c-author {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  color: var(--sumi-3); letter-spacing: 1px;
+}
+
 .form-actions {
   margin-top: 28px; padding-top: 20px;
   border-top: 1px dotted var(--sumi-5);
@@ -771,6 +816,7 @@ input::placeholder { color: var(--sumi-5); font-weight: 300; font-style: italic;
       </div>
       <div class="form-field" style="visibility:hidden"></div>
       <div class="multiday-preview" id="multiday-preview"></div>
+      <div class="conflict-notice" id="conflict-notice"></div>
       <div class="form-field full">
         <label>事項內容</label>
         <input type="text" id="inp-content" placeholder="輸入行程或備忘事項…">
@@ -868,6 +914,8 @@ eventsRef.on('value', function(snap) {
 
   renderTabs(availYears);
   render();
+  // Re-check conflicts after data loads (form has default time pre-filled)
+  if (typeof renderConflicts === 'function') renderConflicts();
 });
 
 // ─── Multi-day preview ───────────────────────────────────────────
@@ -971,7 +1019,7 @@ function startEdit(fbKey) {
   btnCancel.style.display = 'inline-block';
 
   formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  setTimeout(function() { document.getElementById('inp-content').focus(); }, 400);
+  setTimeout(function() { document.getElementById('inp-content').focus(); renderConflicts(); }, 400);
   render();
 }
 
@@ -1024,6 +1072,7 @@ function clearInputs() {
   document.getElementById('inp-author').value     = '';
   document.getElementById('inp-location').value   = '';
   document.getElementById('multiday-preview').classList.remove('visible');
+  document.getElementById('conflict-notice').classList.remove('visible');
 }
 
 // search functions removed
@@ -1641,6 +1690,114 @@ function downloadICS() {
   // Prompt user to open the import page
   setTimeout(openSyncHelp, 400);
 }
+
+
+// ─── Conflict detection ─────────────────────────────────────────
+// Returns events that overlap with the proposed [startDate startTime, endDate endTime]
+// Excludes the event currently being edited.
+function findConflicts(dateStart, dateEnd, timeStart, timeEnd) {
+  if (!dateStart || !timeStart) return [];
+  // Build proposed range: ISO-like comparable strings YYYY-MM-DDTHH:MM
+  var sd = dateStart, st = timeStart;
+  var ed = (dateEnd && dateEnd > dateStart) ? dateEnd : dateStart;
+  var et = timeEnd || timeStart;   // if no end time, treat as point-in-time → use same as start
+  if (!timeEnd && !dateEnd) {
+    // single point — extend by 0; we'll detect any event whose range covers it
+    et = timeStart;
+  }
+  var propStart = sd + 'T' + st;
+  var propEnd   = ed + 'T' + et;
+
+  var conflicts = [];
+  allEvents.forEach(function(e) {
+    if (editingKey && e.fbKey === editingKey) return;        // skip self
+    if (!e.timeStart) return;                                 // skip events with no time
+    var evStart = e.date + 'T' + e.timeStart;
+    var evEnd   = e.date + 'T' + (e.timeEnd || e.timeStart);
+    // Standard interval overlap test:
+    //   propStart < evEnd  AND  evStart < propEnd
+    // Treat point-in-time (start==end) as 1-minute window so equality at boundary doesn't cascade
+    if (propStart === propEnd && evStart === evEnd) {
+      if (propStart === evStart) conflicts.push(e);
+    } else if (propStart === propEnd) {
+      // proposal is a point — conflict if it falls inside [evStart, evEnd)
+      if (propStart >= evStart && propStart < evEnd) conflicts.push(e);
+    } else if (evStart === evEnd) {
+      // existing is a point — conflict if it falls inside [propStart, propEnd)
+      if (evStart >= propStart && evStart < propEnd) conflicts.push(e);
+    } else {
+      if (propStart < evEnd && evStart < propEnd) conflicts.push(e);
+    }
+  });
+  return conflicts;
+}
+
+function renderConflicts() {
+  var notice = document.getElementById('conflict-notice');
+  var dateStart = document.getElementById('inp-date-start').value.trim();
+  var dateEnd   = document.getElementById('inp-date-end').value.trim();
+  var timeStart = document.getElementById('inp-time-start').value.trim();
+  var timeEnd   = document.getElementById('inp-time-end').value.trim();
+
+  // Need at least date + start time to check
+  if (!dateStart || !timeStart) {
+    notice.classList.remove('visible');
+    return;
+  }
+
+  // For multi-day events, check each day for conflicts
+  var allConflicts = [];
+  var seen = {};
+  if (dateEnd && dateEnd > dateStart) {
+    var days = expandDates(dateStart, dateEnd);
+    days.forEach(function(d) {
+      findConflicts(d, d, timeStart, timeEnd).forEach(function(c) {
+        if (!seen[c.fbKey]) { seen[c.fbKey] = true; allConflicts.push(c); }
+      });
+    });
+  } else {
+    allConflicts = findConflicts(dateStart, '', timeStart, timeEnd);
+  }
+
+  if (!allConflicts.length) {
+    notice.classList.remove('visible');
+    return;
+  }
+
+  // Sort conflicts by date+time
+  allConflicts.sort(function(a,b) {
+    var ka = a.date+'T'+(a.timeStart||'00:00');
+    var kb = b.date+'T'+(b.timeStart||'00:00');
+    return ka<kb?-1:ka>kb?1:0;
+  });
+
+  var WD = ['日','一','二','三','四','五','六'];
+  var listHtml = allConflicts.map(function(e) {
+    var p = e.date.split('-');
+    var wd = WD[dowFromYMD(+p[0],+p[1],+p[2])];
+    var clean = (e.content||'').replace(/（第\s*\d+\s*天／共\s*\d+\s*天）$/,'').trimEnd();
+    var t = e.timeStart + (e.timeEnd ? (' → '+e.timeEnd) : '');
+    return '<li>' +
+      '<span class="c-date">' + p[1]+'/'+p[2]+'（'+wd+'）</span>' +
+      '<span class="c-time">' + t + '</span>' +
+      '<span class="c-content">' + esc(clean) + '</span>' +
+      (e.author ? '<span class="c-author">'+esc(e.author)+'</span>' : '') +
+      '</li>';
+  }).join('');
+
+  notice.innerHTML =
+    '<div class="conflict-head">⚠ 時間衝突 · 已有 ' + allConflicts.length + ' 筆事項與此時段重疊，請參考是否要排入</div>' +
+    '<ul class="conflict-list">' + listHtml + '</ul>';
+  notice.classList.add('visible');
+}
+
+// Hook conflict check into all relevant inputs
+['inp-date-start','inp-date-end','inp-time-start','inp-time-end'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input',  renderConflicts);
+  el.addEventListener('change', renderConflicts);
+});
 
 // ─── Keyboard ────────────────────────────────────────────────────
 document.getElementById('inp-content').addEventListener('keydown', function(ev) {
