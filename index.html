@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>IBSH Calendar</title>
 
 <style>
@@ -589,21 +589,128 @@ input::placeholder { color: var(--sumi-5); font-weight: 300; font-style: italic;
 .toast.show { opacity: 1; transform: translateY(0); }
 
 /* ══ レスポンシブ RESPONSIVE ══ */
-@media (max-width: 680px) {
-  .page-wrap { padding: 0 20px 80px 28px; }
-  header.masthead { padding: 36px 0 28px; }
-  .masthead-tagline { text-align: left; max-width: none; margin-top: 16px; }
-  .form-card { padding: 28px 20px 22px; }
-  .form-card::before { left: 16px; }
-  .form-grid { grid-template-columns: 1fr 1fr; gap: 18px; }
-  .form-field.full, .form-field.span2 { grid-column: 1/-1; }
+
+/* Tablet and narrower */
+@media (max-width: 768px) {
+  body { font-size: 15px; }
+  .page-wrap { padding: 0 18px 80px 22px; }
+
+  /* Masthead becomes single column, centered */
+  header.masthead { padding: 32px 0 24px; }
+  .masthead-eyebrow {
+    flex-direction: column; align-items: flex-start; gap: 6px;
+    font-size: 9.5px; letter-spacing: 2px;
+  }
+  .masthead-flag { gap: 14px; }
+  h1.masthead-title { font-size: clamp(2.4rem, 13vw, 3.6rem); }
+  .masthead-tagline {
+    text-align: left; max-width: none;
+    line-height: 1.7; padding-top: 8px;
+    font-size: 9px; letter-spacing: 2.5px;
+  }
+  .masthead-sub {
+    flex-direction: column; align-items: flex-start;
+    gap: 8px; padding: 12px 14px; font-size: 10px;
+  }
+
+  /* Form: switch to single column, larger touch targets */
+  .form-card { padding: 30px 18px 22px; box-shadow: 0 2px 10px rgba(26,21,16,.08), 2px 2px 0 var(--wa-shadow); }
+  .form-card::before { left: 14px; font-size: 9px; letter-spacing: 3px; }
+  .form-card::after { font-size: 11px; right: 14px; top: 12px; padding: 3px 6px; }
+  .form-grid { grid-template-columns: 1fr; gap: 16px; }
+  .form-field.full, .form-field.span2 { grid-column: 1; }
+
+  input[type="date"], input[type="time"], input[type="text"], select {
+    font-size: 16px; padding: 10px 4px;  /* 16px prevents iOS zoom on focus */
+  }
+  label { font-size: 10px; letter-spacing: 2.5px; }
+
+  /* Conflict notice: tighter rows on narrow screens */
+  .conflict-notice .conflict-list li {
+    flex-direction: column; gap: 2px; padding: 6px 0;
+  }
+  .conflict-notice .c-content { font-size: 14px; }
+
+  /* Form actions full-width buttons */
+  .form-actions { gap: 10px; }
+  .btn-primary { width: 100%; padding: 14px 20px; font-size: 16px; }
+  .btn-cancel  { width: 100%; padding: 13px 20px; }
+
+  /* Year tabs scroll horizontally on mobile */
+  .filter-bar {
+    margin: 36px 0 18px;
+    flex-wrap: nowrap; overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  .filter-bar::-webkit-scrollbar { height: 4px; }
+  .filter-bar::-webkit-scrollbar-thumb { background: var(--sumi-5); }
+  .filter-label { padding: 10px 12px 12px 0; font-size: 9px; }
+  .year-tab { font-size: 16px; padding: 10px 16px 12px; flex-shrink: 0; }
+
+  /* Section headings: stack on mobile */
+  .section-heading { gap: 10px; margin: 32px 0 14px; flex-wrap: wrap; }
   .section-title { font-size: 17px; }
-  .event-item { flex-wrap: wrap; padding: 10px 10px 10px 14px; }
-  .event-line { gap: 0 5px; }
-  .item-actions { padding: 6px 0 0; flex-wrap: wrap; width: 100%; justify-content: flex-end; }
-  .ev-date, .ev-time { font-size: 11.5px; }
+  .section-rule { display: none; }
+  .section-count { font-size: 9.5px; padding: 2px 8px; }
+
+  /* Stats bar wraps */
+  .stats-bar { padding: 9px 12px; gap: 8px 12px; flex-wrap: wrap; font-size: 10px; }
+
+  /* Filter (year/month) row wraps neatly */
+  .prev-filter {
+    padding: 11px 14px; gap: 8px;
+    flex-direction: row; flex-wrap: wrap;
+  }
+  .prev-filter-label { width: 100%; padding-bottom: 2px; }
+  .prev-select { font-size: 14px; min-width: 0; flex: 1 1 auto; padding: 8px 26px 8px 10px; }
+  .prev-filter-reset { padding: 7px 10px; font-size: 9.5px; }
+  .prev-filter-count { width: 100%; text-align: right; margin-left: 0; padding-top: 2px; }
+  .prev-toggle { width: 100%; padding: 8px 14px; }
+
+  /* Event items: stack cleanly with all info readable */
+  .event-item {
+    flex-direction: column; align-items: stretch;
+    padding: 12px 12px 12px 16px;
+    gap: 8px; margin-bottom: 4px;
+  }
+  .event-line {
+    gap: 4px 6px;
+    line-height: 1.6;
+  }
+  .ev-date, .ev-time { font-size: 12px; }
+  .ev-content { font-size: 15px; line-height: 1.45; }
+  .ev-location { font-size: 11px; }
+  .ev-author   { font-size: 10.5px; }
+
+  /* Action buttons: full row, evenly spaced */
+  .item-actions {
+    padding: 8px 0 2px; gap: 6px;
+    width: 100%; justify-content: stretch;
+    border-top: 1px dashed var(--sumi-6);
+    margin-top: 4px; padding-top: 10px;
+  }
+  .btn-edit, .btn-delete, .btn-gcal {
+    flex: 1 1 0; min-width: 0;
+    padding: 8px 10px; font-size: 11px;
+  }
+
+  /* Toast spans most of the screen on mobile */
+  .toast {
+    bottom: 16px; right: 16px; left: 16px;
+    text-align: center; padding: 12px 18px;
+    font-size: 11.5px;
+  }
+}
+
+/* Very small phones (≤380px) — squeeze a bit more */
+@media (max-width: 380px) {
+  .page-wrap { padding: 0 14px 80px 18px; }
+  h1.masthead-title { font-size: 2rem; }
+  .form-card { padding: 26px 14px 20px; }
   .ev-content { font-size: 14.5px; }
-  .toast { bottom: 20px; right: 20px; left: 20px; text-align: center; }
+  .btn-edit, .btn-delete, .btn-gcal { font-size: 10.5px; padding: 7px 6px; letter-spacing: 1px; }
+  .year-tab { font-size: 15px; padding: 9px 14px 11px; }
 }
 </style>
 </head>
