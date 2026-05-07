@@ -191,6 +191,121 @@ h1.masthead-title::after {
 }
 .conn-dot.offline { background: var(--shu); }
 
+
+/* ── 權限系統 Auth/Login ── */
+.auth-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; margin-bottom: 28px;
+  background: var(--wa-2);
+  border: 1px solid var(--sumi-6);
+  border-left: 3px solid var(--ai);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; letter-spacing: 1.5px;
+  flex-wrap: wrap;
+}
+.auth-state { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.auth-icon {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  display: grid; place-items: center;
+  font-family: 'Shippori Mincho', serif; font-size: 12px; font-weight: 700;
+}
+.auth-icon.guest { background: var(--sumi-5); color: white; }
+.auth-icon.user  { background: var(--midori); color: white; }
+.auth-icon.admin { background: var(--shu);    color: white; }
+.auth-text { color: var(--sumi-2); text-transform: uppercase; letter-spacing: 1.5px; font-size: 11px; }
+.auth-text strong { color: var(--sumi); font-weight: 600; }
+.auth-text .role-tag {
+  display: inline-block; padding: 2px 8px; margin-left: 6px;
+  border-radius: 99px; font-size: 9.5px; letter-spacing: 1.5px; font-weight: 600;
+}
+.auth-text .role-tag.guest { background: var(--sumi-5); color: white; }
+.auth-text .role-tag.user  { background: var(--midori-wash); color: var(--midori); border: 1px solid var(--midori); }
+.auth-text .role-tag.admin { background: var(--shu-wash);    color: var(--shu);    border: 1px solid var(--shu); }
+.btn-auth {
+  background: none; border: 1px solid var(--ai); color: var(--ai);
+  font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 2px;
+  padding: 7px 14px; cursor: pointer; transition: all .15s var(--ease);
+  text-transform: uppercase; font-weight: 600; white-space: nowrap;
+}
+.btn-auth:hover { background: var(--ai); color: white; box-shadow: 1px 1px 0 var(--sumi); }
+.btn-auth.logout { border-color: var(--sumi-4); color: var(--sumi-3); }
+.btn-auth.logout:hover { background: var(--sumi-3); color: white; }
+.form-card.locked { opacity: .55; pointer-events: none; filter: grayscale(.3); }
+.locked-hint {
+  display: none; background: var(--shu-wash);
+  border: 1px solid rgba(192,57,43,.3); border-left: 3px solid var(--shu);
+  padding: 10px 16px; margin-bottom: 28px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1px;
+  color: var(--shu); text-transform: uppercase; text-align: center;
+}
+.locked-hint.visible { display: block; }
+.login-modal-backdrop {
+  position: fixed; inset: 0; background: rgba(26,21,16,.55);
+  display: none; align-items: center; justify-content: center;
+  z-index: 2000; padding: 24px; backdrop-filter: blur(4px);
+}
+.login-modal-backdrop.show { display: flex; }
+.login-modal {
+  background: var(--wa); border: 1px solid var(--sumi-4);
+  max-width: 420px; width: 100%; padding: 36px 36px 28px;
+  position: relative; max-height: 90vh; overflow-y: auto;
+  box-shadow: 8px 8px 0 var(--sumi-4), 12px 12px 30px rgba(26,21,16,.15);
+  animation: paperSlide .3s var(--ease-out);
+}
+.login-modal::before {
+  content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 3px; background: var(--ai);
+}
+.login-modal-eyebrow {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 4px; color: var(--ai); text-transform: uppercase;
+  margin-bottom: 8px; font-weight: 600;
+}
+.login-modal h2 {
+  font-family: 'Shippori Mincho', serif; font-weight: 700;
+  font-size: 22px; margin-bottom: 18px; color: var(--sumi); letter-spacing: -.01em;
+}
+.login-modal p {
+  font-size: 13.5px; line-height: 1.7; color: var(--sumi-2); margin-bottom: 18px;
+}
+.login-fields { display: flex; flex-direction: column; gap: 16px; margin-bottom: 22px; }
+.login-fields label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
+  letter-spacing: 3px; color: var(--ai); text-transform: uppercase; font-weight: 600;
+  margin-bottom: 4px; display: block;
+}
+.login-fields input {
+  background: transparent; border: none; border-bottom: 1.5px solid var(--sumi-5);
+  padding: 8px 2px; font-family: 'Shippori Mincho','Noto Serif TC',serif;
+  font-size: 16px; color: var(--sumi); outline: none; width: 100%;
+  transition: all .2s; -webkit-appearance: none;
+}
+.login-fields input:focus { border-bottom: 2px solid var(--ai); padding-bottom: 7px; }
+.login-modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn-login {
+  background: var(--ai); color: white; border: none;
+  padding: 11px 24px; font-family: 'Shippori Mincho', serif;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  letter-spacing: 1.5px; transition: all .2s; box-shadow: 2px 2px 0 var(--sumi-2);
+}
+.btn-login:hover { background: var(--ai-hi); transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--sumi-2); }
+.login-error {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  color: var(--shu); letter-spacing: .5px; margin-top: 10px;
+  padding: 8px 12px; background: var(--shu-wash);
+  border-left: 2px solid var(--shu); display: none;
+}
+.login-error.visible { display: block; }
+.login-modal-close {
+  position: absolute; top: 14px; right: 14px;
+  background: none; border: 1px solid var(--sumi-5); color: var(--sumi-4);
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 1px; padding: 4px 9px; cursor: pointer;
+}
+.login-modal-close:hover { border-color: var(--sumi-3); color: var(--sumi); }
+.btn-edit:disabled, .btn-delete:disabled {
+  opacity: .25; cursor: not-allowed; pointer-events: none; filter: saturate(.4);
+}
+
 /* ══ 入力フォーム INPUT FORM ══ */
 .form-card {
   background: var(--wa);
@@ -739,6 +854,48 @@ input::placeholder { color: var(--sumi-5); font-weight: 300; font-style: italic;
     </div>
   </header>
 
+  <!-- Auth bar -->
+  <div class="auth-bar">
+    <div class="auth-state">
+      <span class="auth-icon guest" id="auth-icon">客</span>
+      <span class="auth-text" id="auth-text">
+        瀏覽模式 <span class="role-tag guest">GUEST</span>
+      </span>
+    </div>
+    <button class="btn-auth" id="btn-login" onclick="openLogin()">登入</button>
+    <button class="btn-auth logout" id="btn-logout" onclick="logout()" style="display:none">登出</button>
+  </div>
+
+  <!-- Locked hint for guests -->
+  <div class="locked-hint" id="locked-hint">
+    🔒 瀏覽模式 · 請先點右上「登入」才能新增、修改或刪除事項
+  </div>
+
+  <!-- Login modal -->
+  <div class="login-modal-backdrop" id="login-modal" onclick="if(event.target===this)closeLogin()">
+    <div class="login-modal">
+      <button class="login-modal-close" onclick="closeLogin()">✕ 關閉</button>
+      <div class="login-modal-eyebrow">Sign In</div>
+      <h2>登入登記者身份</h2>
+      <p>請輸入你的姓名（會記錄在事項裡），以及共用通行碼。登入後即可新增事項，並修改／刪除自己新增的項目。</p>
+      <div class="login-fields">
+        <div>
+          <label>組別 / 姓名</label>
+          <input type="text" id="login-name" placeholder="例：教務處 王老師" autocomplete="off">
+        </div>
+        <div>
+          <label>通行碼</label>
+          <input type="password" id="login-passcode" placeholder="八位數通行碼" autocomplete="off">
+        </div>
+      </div>
+      <div class="login-modal-actions">
+        <button class="btn-login" onclick="doLogin()">登入</button>
+        <button class="btn-auth logout" onclick="closeLogin()">取消</button>
+      </div>
+      <div class="login-error" id="login-error">通行碼錯誤，請重新輸入</div>
+    </div>
+  </div>
+
 <!-- Form -->
   <div class="form-card" id="form-card">
     <div class="form-grid">
@@ -750,9 +907,9 @@ input::placeholder { color: var(--sumi-5); font-weight: 300; font-style: italic;
         <label>結束日期（多天活動）</label>
         <input type="date" id="inp-date-end" oninput="onDateChange()" onchange="onDateChange()">
       </div>
-      <div class="form-field">
-        <label>填表人</label>
-        <input type="text" id="inp-author" placeholder="組別／姓名">
+      <div class="form-field" id="author-display-field" style="display:none">
+        <label>填表人（已登入）</label>
+        <input type="text" id="inp-author" readonly style="cursor:not-allowed; opacity:.7">
       </div>
       <div class="form-field">
         <label>開始時間</label>
@@ -799,6 +956,118 @@ input::placeholder { color: var(--sumi-5); font-weight: 300; font-style: italic;
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
+
+// ─── Auth / Permissions ─────────────────────────────────────────
+var PASSCODE_USER  = '47299044';
+var PASSCODE_ADMIN = '47299044admin';
+var AUTH_KEY = 'ibsh_auth_v1';
+var auth = loadAuth();
+
+function loadAuth() {
+  try {
+    var raw = localStorage.getItem(AUTH_KEY);
+    if (!raw) return { name: '', role: 'guest' };
+    var a = JSON.parse(raw);
+    if (!a.role) a.role = 'guest';
+    return a;
+  } catch(_) { return { name: '', role: 'guest' }; }
+}
+function saveAuth() {
+  try { localStorage.setItem(AUTH_KEY, JSON.stringify(auth)); } catch(_) {}
+}
+function openLogin() {
+  document.getElementById('login-modal').classList.add('show');
+  document.getElementById('login-name').value     = auth.name || '';
+  document.getElementById('login-passcode').value = '';
+  document.getElementById('login-error').classList.remove('visible');
+  setTimeout(function() {
+    var f = document.getElementById('login-name');
+    if (f.value) document.getElementById('login-passcode').focus();
+    else f.focus();
+  }, 100);
+}
+function closeLogin() { document.getElementById('login-modal').classList.remove('show'); }
+
+function doLogin() {
+  var name = document.getElementById('login-name').value.trim();
+  var pass = document.getElementById('login-passcode').value.trim();
+  var err  = document.getElementById('login-error');
+  if (!name) { err.textContent = '請輸入組別／姓名'; err.classList.add('visible'); return; }
+  if (!pass) { err.textContent = '請輸入通行碼';     err.classList.add('visible'); return; }
+  if (pass === PASSCODE_ADMIN) {
+    auth = { name: name, role: 'admin' };
+    saveAuth(); closeLogin();
+    showToast('已以管理員身份登入 ✓');
+    applyAuth(); render(); return;
+  }
+  if (pass === PASSCODE_USER) {
+    auth = { name: name, role: 'user' };
+    saveAuth(); closeLogin();
+    showToast('登入成功，歡迎 ' + name);
+    applyAuth(); render(); return;
+  }
+  err.textContent = '通行碼錯誤，請重新輸入'; err.classList.add('visible');
+}
+
+function logout() {
+  if (!confirm('確定要登出嗎？登出後將回到瀏覽模式，無法新增事項。')) return;
+  auth = { name: '', role: 'guest' };
+  saveAuth(); applyAuth();
+  if (editingKey) resetForm();
+  render();
+  showToast('已登出');
+}
+
+function applyAuth() {
+  var icon  = document.getElementById('auth-icon');
+  var text  = document.getElementById('auth-text');
+  var btnIn = document.getElementById('btn-login');
+  var btnOut= document.getElementById('btn-logout');
+  var hint  = document.getElementById('locked-hint');
+  var card  = document.getElementById('form-card');
+  var aField= document.getElementById('author-display-field');
+  var aInput= document.getElementById('inp-author');
+  if (!icon) return; // safety: DOM not ready
+
+  if (auth.role === 'guest') {
+    icon.className = 'auth-icon guest'; icon.textContent = '客';
+    text.innerHTML = '瀏覽模式 <span class="role-tag guest">GUEST</span>';
+    btnIn.style.display = 'inline-block'; btnOut.style.display = 'none';
+    hint.classList.add('visible'); card.classList.add('locked');
+    aField.style.display = 'none'; aInput.value = '';
+  } else if (auth.role === 'admin') {
+    icon.className = 'auth-icon admin'; icon.textContent = '管';
+    text.innerHTML = '<strong>' + esc(auth.name) + '</strong> <span class="role-tag admin">管理員</span>';
+    btnIn.style.display = 'none'; btnOut.style.display = 'inline-block';
+    hint.classList.remove('visible'); card.classList.remove('locked');
+    aField.style.display = 'flex'; aInput.value = auth.name;
+  } else {
+    icon.className = 'auth-icon user'; icon.textContent = '記';
+    text.innerHTML = '<strong>' + esc(auth.name) + '</strong> <span class="role-tag user">登記者</span>';
+    btnIn.style.display = 'none'; btnOut.style.display = 'inline-block';
+    hint.classList.remove('visible'); card.classList.remove('locked');
+    aField.style.display = 'flex'; aInput.value = auth.name;
+  }
+}
+
+function canModify(e) {
+  if (auth.role === 'admin') return true;
+  if (auth.role === 'user') {
+    if (e.createdBy && e.createdBy === auth.name) return true;
+    if (!e.createdBy && e.author && e.author === auth.name) return true;
+    return false;
+  }
+  return false;
+}
+
+document.getElementById('login-passcode').addEventListener('keydown', function(ev) {
+  if (ev.key === 'Enter') doLogin();
+});
+document.getElementById('login-name').addEventListener('keydown', function(ev) {
+  if (ev.key === 'Enter') document.getElementById('login-passcode').focus();
+});
+
+
 // ─── Firebase ───────────────────────────────────────────────────
 firebase.initializeApp({
   apiKey:            'AIzaSyDzmRFL5JmkapqhrOHtn_M73nQ0w1yg69M',
@@ -848,6 +1117,9 @@ var upcomFilterYear  = '';
 var upcomFilterMonth = '';
 
 // ─── Realtime listener ───────────────────────────────────────────
+// Initialize auth UI on page load
+applyAuth();
+
 eventsRef.on('value', function(snap) {
   var raw = snap.val() || {};
   allEvents = Object.entries(raw).map(function(entry) {
@@ -887,8 +1159,11 @@ function submitForm() {
   var timeStart = document.getElementById('inp-time-start').value.trim();
   var timeEnd   = document.getElementById('inp-time-end').value.trim();
   var content   = document.getElementById('inp-content').value.trim();
-  var author    = document.getElementById('inp-author').value.trim();
+  var author    = auth.name;   // forced to logged-in name
   var location  = document.getElementById('inp-location').value.trim();
+
+  // Auth gate
+  if (auth.role === 'guest') { showToast('請先登入才能新增事項'); openLogin(); return; }
 
   if (!dateStart)  return showToast('請選擇開始日期');
   if (!timeStart)  return showToast('請填寫開始時間');
@@ -899,14 +1174,20 @@ function submitForm() {
   btnSubmit.disabled = true;
 
   if (editingKey) {
-    eventsRef.child(editingKey).update({
+    var updatePayload = {
       date: dateStart, timeStart: timeStart,
       timeEnd:   timeEnd   || '',
       content:   content,
       location:  location  || '',
       author:    author    || '未署名',
-      updatedAt: Date.now()
-    })
+      updatedAt: Date.now(),
+      updatedBy: auth.name
+    };
+    // Preserve original createdBy if present; otherwise stamp it now (legacy events)
+    var origEv = allEvents.find(function(x){ return x.fbKey === editingKey; });
+    if (origEv && !origEv.createdBy) updatePayload.createdBy = origEv.author || auth.name;
+
+    eventsRef.child(editingKey).update(updatePayload)
     .then(function() {
       showToast('修改已儲存 ✓');
       activeYear = dateStart.slice(0,4);
@@ -948,6 +1229,10 @@ function submitForm() {
 function startEdit(fbKey) {
   var e = allEvents.find(function(x) { return x.fbKey === fbKey; });
   if (!e) return;
+  if (!canModify(e)) {
+    showToast(auth.role === 'guest' ? '請先登入才能修改' : '只能修改自己新增的事項');
+    return;
+  }
   editingKey = fbKey;
 
   var cleanContent = (e.content || '').replace(/（第\s*\d+\s*天／共\s*\d+\s*天）$/, '').trimEnd();
@@ -975,6 +1260,10 @@ function startEdit(fbKey) {
 function deleteEvent(fbKey) {
   var e = allEvents.find(function(x) { return x.fbKey === fbKey; });
   if (!e) return;
+  if (!canModify(e)) {
+    showToast(auth.role === 'guest' ? '請先登入才能刪除' : '只能刪除自己新增的事項');
+    return;
+  }
   if (e.groupId) {
     var siblings = allEvents.filter(function(x) { return x.groupId === e.groupId; });
     if (siblings.length > 1) {
@@ -1414,8 +1703,11 @@ function renderItem(e, isPast, isSearching) {
   // Actions — horizontal row on the right
   h += '<div class="item-actions">';
   h += '<a class="btn-gcal" href="https://calendar.google.com/calendar/embed?src=ibsh.tw_4i9h77tjgvq1964bmbgqedftpo%40group.calendar.google.com&ctz=Asia%2FTaipei" target="_blank">GCal</a>';
-  h += '<button class="btn-edit" onclick="startEdit(\'' + e.fbKey + '\')"' + (isEditing ? ' disabled style="opacity:.4"' : '') + '>修改</button>';
-  h += '<button class="btn-delete" onclick="deleteEvent(\'' + e.fbKey + '\')">刪除</button>';
+  var canMod  = canModify(e);
+  var modAttr = (isEditing || !canMod) ? ' disabled' : '';
+  var modTitle= !canMod ? (' title="' + (auth.role==="guest" ? "請先登入" : "只能修改／刪除自己新增的事項") + '"') : '';
+  h += '<button class="btn-edit" onclick="startEdit(\'' + e.fbKey + '\')"' + modAttr + modTitle + '>修改</button>';
+  h += '<button class="btn-delete" onclick="deleteEvent(\'' + e.fbKey + '\')"' + modAttr + modTitle + '>刪除</button>';
   h += '</div></div>';
   return h;
 }
