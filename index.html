@@ -1702,7 +1702,7 @@ function renderItem(e, isPast, isSearching) {
 
   // Actions — horizontal row on the right
   h += '<div class="item-actions">';
-  h += '<a class="btn-gcal" href="https://calendar.google.com/calendar/embed?src=ibsh.tw_4i9h77tjgvq1964bmbgqedftpo%40group.calendar.google.com&ctz=Asia%2FTaipei" target="_blank">GCal</a>';
+  h += '<a class="btn-gcal" href="' + buildGcalLink(e) + '" target="_blank" title="加入 Google Calendar（請在新頁面選擇要加入的日曆）">📅 GCal</a>';
   var canMod  = canModify(e);
   var modAttr = (isEditing || !canMod) ? ' disabled' : '';
   var modTitle= !canMod ? (' title="' + (auth.role==="guest" ? "請先登入" : "只能修改／刪除自己新增的事項") + '"') : '';
