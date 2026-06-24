@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>IBSH Calendar</title>
+<title>IBSH 週報公告 & 工作行事曆</title>
 
 <style>
 /* ═══════════════════════════════════════════════════════════════
@@ -153,9 +153,9 @@ h1.masthead-title::after {
 }
 .masthead-tagline {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 9.5px; letter-spacing: 3.5px;
-  color: var(--sumi-4); text-transform: uppercase;
-  text-align: right; max-width: 180px; line-height: 2.2;
+  font-size: 12px; letter-spacing: 2px; font-weight: 600;
+  color: var(--ai); text-transform: uppercase;
+  text-align: right; max-width: 240px; line-height: 1.9;
   padding-bottom: 4px;
 }
 .masthead-sub {
@@ -317,7 +317,7 @@ h1.masthead-title::after {
 }
 /* 用紙の穴補強リング ― Hole reinforcement ring effect */
 .form-card::before {
-  content: 'ADD / 新規記入';
+  content: 'ADD · 新增';
   position: absolute; top: -11px; left: 30px;
   background: var(--wa); padding: 2px 14px;
   font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
@@ -335,7 +335,7 @@ h1.masthead-title::after {
   pointer-events: none;
 }
 .form-card.editing { border-color: var(--midori); box-shadow: 0 2px 12px rgba(74,112,85,.12), 3px 3px 0 var(--wa-shadow); }
-.form-card.editing::before { content: 'EDIT / 修正'; color: var(--midori); border-color: rgba(74,112,85,.35); }
+.form-card.editing::before { content: 'EDIT · 修改'; color: var(--midori); border-color: rgba(74,112,85,.35); }
 
 .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 22px 26px; position: relative; z-index: 1; }
 .form-field { display: flex; flex-direction: column; gap: 6px; position: relative; }
@@ -827,6 +827,350 @@ input::placeholder { color: var(--sumi-5); font-weight: 300; font-style: italic;
   .btn-edit, .btn-delete, .btn-gcal { font-size: 10.5px; padding: 7px 6px; letter-spacing: 1px; }
   .year-tab { font-size: 15px; padding: 9px 14px 11px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   モード切替  MODE TABS  ·  週報公告 / 行事曆
+═══════════════════════════════════════════════════════════════ */
+.mode-tabs {
+  display: flex; gap: 0; margin: 4px 0 30px;
+  border: 1px solid var(--sumi-5);
+  background: var(--wa-2);
+  box-shadow: 3px 3px 0 var(--wa-shadow);
+}
+.mode-tab {
+  flex: 1; background: none; border: none; cursor: pointer;
+  padding: 16px 18px 14px; text-align: center;
+  font-family: 'Shippori Mincho', serif; font-weight: 600;
+  font-size: 17px; color: var(--sumi-3); letter-spacing: .04em;
+  position: relative; transition: all .2s var(--ease);
+  border-right: 1px solid var(--sumi-6);
+}
+.mode-tab:last-child { border-right: none; }
+.mode-tabs.solo #tab-notice { border-right: none; }
+.mode-tab .tab-en {
+  display: block; font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; letter-spacing: 2.5px; color: var(--sumi-4);
+  text-transform: uppercase; margin-top: 4px; font-weight: 600;
+}
+#tab-notice   .tab-en { color: var(--ai); }
+#tab-calendar .tab-en { color: var(--kohaku); }
+.mode-tab.active .tab-en { color: var(--shu) !important; }
+.mode-tab:hover { background: var(--wa); color: var(--sumi-2); }
+.mode-tab.active {
+  background: var(--wa); color: var(--shu);
+  box-shadow: inset 0 -3px 0 var(--shu);
+}
+.mode-tab.active .tab-en { color: var(--shu); }
+.mode-pane { display: none; }
+.mode-pane.active { display: block; animation: paperIn .35s var(--ease-out) both; }
+
+/* ═══════════════════════════════════════════════════════════════
+   週報公告  WEEKLY NOTICE
+═══════════════════════════════════════════════════════════════ */
+/* textarea inherits the paper-ruled input look */
+textarea.notice-input {
+  background: transparent;
+  border: 1px solid var(--sumi-5);
+  padding: 12px 12px;
+  font-family: 'Noto Serif TC', 'Shippori Mincho', serif;
+  font-size: 16px; line-height: 1.7; color: var(--sumi);
+  outline: none; width: 100%; resize: vertical; min-height: 130px;
+  transition: all .2s var(--ease); -webkit-appearance: none; border-radius: 0;
+  letter-spacing: .02em;
+}
+textarea.notice-input:focus { border-color: var(--shu); box-shadow: 0 0 0 2px rgba(192,57,43,.1); }
+.editing textarea.notice-input:focus { border-color: var(--midori); box-shadow: 0 0 0 2px rgba(74,112,85,.12); }
+.notice-hint {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: .5px; color: var(--sumi-4); margin-top: 5px; text-transform: none;
+}
+
+/* Department select shows colored dot */
+.dept-pick { display: flex; flex-direction: column; gap: 6px; }
+
+/* week notice block (one published issue) */
+.notice-week {
+  margin-bottom: 14px; border: 1px solid var(--sumi-5);
+  background: var(--wa);
+  box-shadow: 0 2px 10px rgba(26,21,16,.05), 3px 3px 0 var(--wa-shadow);
+}
+.notice-week-head {
+  display: flex; align-items: center; gap: 14px; cursor: pointer;
+  padding: 16px 20px; background: var(--wa-2);
+  border-bottom: 1px solid var(--sumi-6); user-select: none;
+  transition: background .2s;
+}
+.notice-week-head:hover { background: var(--wa-3); }
+.notice-week.collapsed .notice-week-head { border-bottom: none; }
+.nw-issue {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
+  letter-spacing: 2.5px; color: var(--shu); text-transform: uppercase;
+  border: 1px solid rgba(192,57,43,.35); padding: 3px 8px; background: var(--shu-wash);
+  white-space: nowrap;
+}
+.nw-date {
+  font-family: 'Shippori Mincho', serif; font-weight: 700;
+  font-size: 21px; color: var(--sumi); letter-spacing: .02em;
+  line-height: 1; white-space: nowrap;
+}
+.nw-year { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--sumi-4); letter-spacing: 1px; }
+.nw-meta { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.nw-count {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 1.5px; color: var(--sumi-4); white-space: nowrap;
+}
+.nw-chevron { font-size: 12px; color: var(--sumi-4); transition: transform .25s var(--ease); }
+.notice-week.collapsed .nw-chevron { transform: rotate(-90deg); }
+.nw-body { padding: 6px 0 10px; }
+.notice-week.collapsed .nw-body { display: none; }
+.nw-latest-flag {
+  font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; font-weight: 700;
+  letter-spacing: 1.5px; background: var(--midori); color: white;
+  padding: 2px 7px; text-transform: uppercase; white-space: nowrap;
+}
+
+/* department group inside a week */
+.dept-group { padding: 12px 20px 6px; border-top: 1px dashed var(--sumi-6); }
+.dept-group:first-child { border-top: none; }
+.dept-head {
+  display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px;
+}
+.dept-bar { width: 4px; align-self: stretch; flex-shrink: 0; }
+.dept-zh {
+  font-family: 'Shippori Mincho', serif; font-weight: 700; font-size: 16px;
+  color: var(--sumi-2); letter-spacing: .04em;
+}
+.dept-en {
+  font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600;
+  letter-spacing: 2px; color: var(--sumi-4); text-transform: uppercase;
+}
+/* department accent colors */
+.dept-c-shu    .dept-bar { background: var(--shu); }    .dept-c-shu    .dept-zh, .dept-c-shu    .dept-en { color: var(--shu); }
+.dept-c-ai     .dept-bar { background: var(--ai); }     .dept-c-ai     .dept-zh, .dept-c-ai     .dept-en { color: var(--ai); }
+.dept-c-midori .dept-bar { background: var(--midori); } .dept-c-midori .dept-zh, .dept-c-midori .dept-en { color: var(--midori); }
+.dept-c-kohaku .dept-bar { background: var(--kohaku); } .dept-c-kohaku .dept-zh, .dept-c-kohaku .dept-en { color: var(--kohaku); }
+
+/* single notice item */
+.notice-item {
+  display: flex; gap: 12px; padding: 9px 0 9px 14px;
+  border-top: 1px solid var(--sumi-6); position: relative;
+  animation: paperIn .3s var(--ease-out) both;
+}
+.notice-item:first-child { border-top: none; }
+.notice-item.is-editing { background: var(--midori-wash); }
+.ni-main { flex: 1; min-width: 0; }
+.ni-poster {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600;
+  letter-spacing: .5px; color: var(--ai); margin-bottom: 3px;
+  display: inline-block;
+}
+.ni-poster::before { content: '✎ '; color: var(--sumi-4); }
+.ni-content {
+  font-family: 'Noto Serif TC', 'Shippori Mincho', serif;
+  font-size: 15px; line-height: 1.7; color: var(--sumi);
+  word-break: break-word; letter-spacing: .02em; white-space: normal;
+}
+.ni-content a {
+  color: var(--ai); text-decoration: none;
+  border-bottom: 1px solid rgba(44,79,124,.35);
+  word-break: break-all;
+}
+.ni-content a:hover { color: var(--ai-hi); border-bottom-color: var(--ai-hi); background: var(--ai-wash); }
+.ni-byline {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
+  color: var(--sumi-5); letter-spacing: .5px; margin-top: 4px;
+}
+.ni-actions { display: flex; flex-direction: row; gap: 5px; align-items: flex-start; flex-shrink: 0; padding-right: 14px; }
+
+/* notice filter row reuses .prev-filter look — nothing extra needed */
+.notice-empty {
+  text-align: center; padding: 50px 20px; color: var(--sumi-4);
+  border: 1px dashed var(--sumi-5); background: var(--wa);
+}
+.notice-empty .state-text { margin-top: 8px; }
+
+@media (max-width: 768px) {
+  .mode-tab { font-size: 15px; padding: 13px 8px 11px; }
+  .mode-tab .tab-en { font-size: 8px; letter-spacing: 2px; }
+  .nw-date { font-size: 18px; }
+  .notice-week-head { padding: 14px 14px; gap: 10px; flex-wrap: wrap; }
+  .nw-meta { margin-left: 0; width: 100%; justify-content: space-between; }
+  .dept-group { padding: 12px 14px 6px; }
+  .notice-item { flex-direction: column; gap: 8px; padding: 10px 0 10px 14px; }
+  .ni-actions {
+    padding: 8px 0 0; gap: 6px; width: 100%;
+    border-top: 1px dashed var(--sumi-6); margin-top: 4px; padding-top: 10px;
+  }
+  .ni-actions .btn-edit, .ni-actions .btn-delete { flex: 1 1 0; padding: 8px 10px; font-size: 11px; }
+  textarea.notice-input { font-size: 16px; }
+}
+
+/* ── 顯示於週報公告 勾選欄位 ── */
+.notice-flag-label {
+  display: flex; align-items: center; gap: 10px; cursor: pointer;
+  padding: 12px 14px; background: var(--ai-wash);
+  border: 1px solid rgba(44,79,124,.3); border-left: 3px solid var(--ai);
+  user-select: none; text-transform: none; letter-spacing: 0;
+}
+.notice-flag-label input { position: absolute; opacity: 0; width: 0; height: 0; }
+.notice-flag-box {
+  width: 20px; height: 20px; flex-shrink: 0;
+  border: 2px solid var(--ai); background: var(--wa);
+  display: grid; place-items: center; transition: all .15s var(--ease);
+}
+.notice-flag-box::after {
+  content: '✓'; font-family: 'Shippori Mincho', serif; font-weight: 700;
+  font-size: 14px; color: var(--wa); opacity: 0; transform: scale(.5);
+  transition: all .15s var(--ease);
+}
+.notice-flag-label input:checked + .notice-flag-box { background: var(--ai); }
+.notice-flag-label input:checked + .notice-flag-box::after { opacity: 1; transform: scale(1); }
+.notice-flag-text {
+  font-family: 'Shippori Mincho', serif; font-size: 15px; font-weight: 600;
+  color: var(--ai); letter-spacing: .02em;
+}
+.notice-flag-text em {
+  font-family: 'IBM Plex Mono', monospace; font-style: normal;
+  font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+  color: var(--ai-hi); text-transform: uppercase;
+}
+.editing .notice-flag-label { background: var(--midori-wash); border-color: rgba(74,112,85,.35); border-left-color: var(--midori); }
+.editing .notice-flag-box { border-color: var(--midori); }
+.editing .notice-flag-label input:checked + .notice-flag-box { background: var(--midori); }
+.editing .notice-flag-text, .editing .notice-flag-text em { color: var(--midori); }
+
+/* ── 行事曆事項列上的「週報」標記與快速切換鈕 ── */
+.ev-notice-badge {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700;
+  background: var(--ai); color: white; padding: 1px 6px; letter-spacing: 1px;
+  vertical-align: middle; white-space: nowrap;
+}
+.btn-notice {
+  background: none; border: 1px solid rgba(44,79,124,.4); color: var(--ai);
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1px;
+  padding: 4px 9px; cursor: pointer; transition: all .15s var(--ease);
+  white-space: nowrap; text-transform: uppercase; font-weight: 600; line-height: 1.5;
+}
+.btn-notice:hover { background: var(--ai-wash); border-color: var(--ai); box-shadow: 1px 1px 0 var(--ai); }
+.btn-notice.on { background: var(--ai); color: white; border-color: var(--ai); }
+.btn-notice.on:hover { background: var(--ai-hi); }
+.btn-notice:disabled { opacity: .25; cursor: not-allowed; pointer-events: none; }
+
+/* ── 週報公告：行事曆精選區 ── */
+.cal-highlights {
+  margin-bottom: 26px; border: 1px solid var(--ai);
+  background: var(--wa);
+  box-shadow: 0 2px 10px rgba(44,79,124,.08), 3px 3px 0 var(--ai-wash);
+}
+.cal-highlights-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 20px; background: var(--ai-wash);
+  border-bottom: 1px solid rgba(44,79,124,.25);
+}
+.ch-title {
+  font-family: 'Shippori Mincho', serif; font-weight: 700; font-size: 17px;
+  color: var(--ai); letter-spacing: .03em;
+}
+.ch-en {
+  font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600;
+  letter-spacing: 2px; color: var(--ai-hi); text-transform: uppercase;
+}
+.ch-count {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 1.5px; color: var(--sumi-4); margin-left: auto; white-space: nowrap;
+}
+.ch-body { padding: 4px 0 8px; }
+.ch-item {
+  display: flex; align-items: baseline; gap: 0 6px; flex-wrap: wrap;
+  padding: 9px 20px; border-top: 1px solid var(--sumi-6); line-height: 1.6;
+}
+.ch-item:first-child { border-top: none; }
+.ch-item.is-past { opacity: .55; }
+.ch-date {
+  font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 500;
+  color: var(--sumi-3); white-space: nowrap;
+}
+.ch-time {
+  font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 600;
+  color: var(--shu); white-space: nowrap;
+}
+.ch-dash { color: var(--sumi-4); }
+.ch-content {
+  font-family: 'Noto Serif TC','Shippori Mincho',serif; font-size: 15px; font-weight: 500;
+  color: var(--sumi); word-break: break-word;
+}
+.ch-loc, .ch-author {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .5px;
+}
+.ch-loc { color: var(--ai); } .ch-author { color: var(--sumi-4); }
+
+@media (max-width: 768px) {
+  .notice-flag-text { font-size: 14px; }
+  .cal-highlights-head { padding: 12px 14px; flex-wrap: wrap; gap: 8px; }
+  .ch-item { padding: 9px 14px; }
+  .ch-count { margin-left: 0; }
+}
+
+/* ── 適用年段 勾選 chip ── */
+.grade-pick { display: flex; gap: 10px; flex-wrap: wrap; }
+.grade-chip {
+  display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+  padding: 9px 14px; border: 1.5px solid var(--sumi-5); background: var(--wa);
+  user-select: none; text-transform: none; letter-spacing: 0;
+  transition: all .15s var(--ease);
+}
+.grade-chip input { position: absolute; opacity: 0; width: 0; height: 0; }
+.grade-chip span {
+  font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600;
+  letter-spacing: 1px; color: var(--sumi-3);
+}
+.grade-chip::before {
+  content: ''; width: 16px; height: 16px; flex-shrink: 0;
+  border: 2px solid var(--sumi-4); background: var(--wa);
+  display: inline-block; transition: all .15s var(--ease);
+}
+/* per-band accent */
+.grade-chip.g15  { --gc: var(--shu); }
+.grade-chip.g68  { --gc: var(--ai); }
+.grade-chip.g912 { --gc: var(--midori); }
+.grade-chip:hover { border-color: var(--gc); }
+.grade-chip:has(input:checked) { border-color: var(--gc); background: color-mix(in srgb, var(--gc) 10%, var(--wa)); }
+.grade-chip:has(input:checked) span { color: var(--gc); }
+.grade-chip:has(input:checked)::before { background: var(--gc); border-color: var(--gc); box-shadow: inset 0 0 0 2px var(--wa); }
+
+/* fallback for browsers without :has — sibling-based via class toggled in JS */
+.grade-chip.checked { border-color: var(--gc); }
+.grade-chip.checked span { color: var(--gc); }
+.grade-chip.checked::before { background: var(--gc); border-color: var(--gc); box-shadow: inset 0 0 0 2px var(--wa); }
+
+/* ── 年段小標記（行事曆列 & 精選） ── */
+.grade-tag {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; font-weight: 700;
+  letter-spacing: .5px; padding: 1px 5px; vertical-align: middle;
+  color: white; white-space: nowrap; margin-left: 2px;
+}
+.grade-tag.g15  { background: var(--shu); }
+.grade-tag.g68  { background: var(--ai); }
+.grade-tag.g912 { background: var(--midori); }
+.grade-tag.all  { background: var(--sumi-4); }
+
+@media (max-width: 768px) {
+  .grade-chip span { font-size: 13px; }
+}
+
+/* ── 中英對照：行內英文 ── */
+.en {
+  font-family: 'IBM Plex Mono', monospace; font-weight: 500;
+  font-size: .76em; letter-spacing: .02em; color: var(--ai);
+  text-transform: none; margin-left: .35em; white-space: normal;
+}
+.en-sub {
+  display: block; font-family: 'IBM Plex Mono', monospace; font-weight: 500;
+  font-size: 11px; letter-spacing: .03em; color: var(--ai);
+  text-transform: none; margin-top: 2px; line-height: 1.4;
+}
+label .en { color: var(--ai); font-weight: 600; }
+.notice-hint .en { color: var(--ai); margin-left: 0; display: block; margin-top: 1px; }
 </style>
 </head>
 <body>
@@ -838,18 +1182,18 @@ input::placeholder { color: var(--sumi-5); font-weight: 300; font-style: italic;
       <span class="issue-no" id="eyebrow-date">— —</span>
     </div>
     <div class="masthead-flag">
-      <h1 class="masthead-title">IBSH<span class="amp">&amp;</span>Cal</h1>
+      <h1 class="masthead-title">IBSH<span class="amp">&amp;</span>Notice</h1>
       <div class="masthead-tagline">
-        Shared<br>
-        Auto-Sorted<br>
-        Editorial Timetable
+        Weekly Notice<br>
+        &amp; Work Calendar<br>
+        Shared · Live-Synced
       </div>
     </div>
     <div class="masthead-sub">
-      <span>多人共用 · 即時同步 · 依時序自動排列</span>
+      <span>處室公告 · 工作行事曆 · 即時同步共用<span class="en">Dept. Notices · Work Calendar · Live-Synced</span></span>
       <span class="conn-bar">
         <span class="conn-dot" id="conn-dot"></span>
-        <span id="conn-text">連線中…</span>
+        <span id="conn-text">連線中… Connecting…</span>
       </span>
     </div>
   </header>
@@ -859,96 +1203,187 @@ input::placeholder { color: var(--sumi-5); font-weight: 300; font-style: italic;
     <div class="auth-state">
       <span class="auth-icon guest" id="auth-icon">客</span>
       <span class="auth-text" id="auth-text">
-        瀏覽模式 <span class="role-tag guest">GUEST</span>
+        瀏覽模式 Browsing <span class="role-tag guest">GUEST</span>
       </span>
     </div>
-    <button class="btn-auth" id="btn-login" onclick="openLogin()">登入</button>
-    <button class="btn-auth logout" id="btn-logout" onclick="logout()" style="display:none">登出</button>
+    <button class="btn-auth" id="btn-login" onclick="openLogin()">登入 Sign In</button>
+    <button class="btn-auth logout" id="btn-logout" onclick="logout()" style="display:none">登出 Sign Out</button>
   </div>
 
   <!-- Locked hint for guests -->
   <div class="locked-hint" id="locked-hint">
-    🔒 瀏覽模式 · 請先點右上「登入」才能新增、修改或刪除事項
+    🔒 瀏覽模式 · 請先點右上「登入」才能新增、修改或刪除內容<span class="en">Browsing only · Sign in (top-right) to add, edit or delete</span>
   </div>
 
   <!-- Login modal -->
   <div class="login-modal-backdrop" id="login-modal" onclick="if(event.target===this)closeLogin()">
     <div class="login-modal">
-      <button class="login-modal-close" onclick="closeLogin()">✕ 關閉</button>
+      <button class="login-modal-close" onclick="closeLogin()">✕ 關閉 Close</button>
       <div class="login-modal-eyebrow">Sign In</div>
-      <h2>登入登記者身份</h2>
-      <p>請輸入你的姓名（會記錄在事項裡），以及共用通行碼。登入後即可新增事項，並修改／刪除自己新增的項目。</p>
+      <h2>登入組別／登記者身份<span class="en">Sign in as a coordinator / contributor</span></h2>
+      <p>請輸入你的組別／姓名（會記錄在公告與事項上），以及共用通行碼。登入後即可在「週報公告」與「行事曆」新增內容，並修改／刪除自己新增的項目。<span class="en-sub">Enter your coordinator group / name (shown on your posts) and the shared passcode. Once signed in you can post to the Weekly Notice and Calendar, and edit or delete your own items.</span></p>
       <div class="login-fields">
         <div>
-          <label>組別 / 姓名</label>
-          <input type="text" id="login-name" placeholder="例：教務處 王老師" autocomplete="off">
+          <label>組別 / 姓名 <span class="en">Coordinator / Name</span></label>
+          <input type="text" id="login-name" placeholder="例 e.g.：體育組 / Hanyun @ PE" autocomplete="off">
         </div>
         <div>
-          <label>通行碼</label>
-          <input type="password" id="login-passcode" placeholder="八位數通行碼" autocomplete="off">
+          <label>通行碼 <span class="en">Passcode</span></label>
+          <input type="password" id="login-passcode" placeholder="八位數通行碼 8-digit passcode" autocomplete="off">
         </div>
       </div>
       <div class="login-modal-actions">
-        <button class="btn-login" onclick="doLogin()">登入</button>
-        <button class="btn-auth logout" onclick="closeLogin()">取消</button>
+        <button class="btn-login" onclick="doLogin()">登入 Sign In</button>
+        <button class="btn-auth logout" onclick="closeLogin()">取消 Cancel</button>
       </div>
-      <div class="login-error" id="login-error">通行碼錯誤，請重新輸入</div>
+      <div class="login-error" id="login-error">通行碼錯誤，請重新輸入 Wrong passcode, please try again</div>
     </div>
   </div>
+
+<!-- ══ MODE TABS ══ -->
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tab-notice" onclick="switchMode('notice')">
+      週報公告<span class="tab-en">Weekly Notice</span>
+    </button>
+    <button class="mode-tab" id="tab-calendar" onclick="switchMode('calendar')">
+      工作行事曆<span class="tab-en">Work Calendar</span>
+    </button>
+  </div>
+
+<!-- ════════════════════ 週報公告 PANE ════════════════════ -->
+  <div class="mode-pane active" id="pane-notice">
+
+    <!-- Notice input form -->
+    <div class="form-card" id="notice-form-card">
+      <div class="form-grid">
+        <div class="form-field">
+          <label>週報日期 <span class="en">Notice Date</span></label>
+          <input type="date" id="ni-week">
+        </div>
+        <div class="form-field dept-pick">
+          <label>處室 <span class="en">Department</span></label>
+          <select id="ni-dept" onchange="onDeptChange()"></select>
+        </div>
+        <div class="form-field" id="ni-author-field" style="display:none">
+          <label>填寫人（已登入）<span class="en">Posted by (signed in)</span></label>
+          <input type="text" id="ni-author" readonly style="cursor:not-allowed; opacity:.7">
+        </div>
+        <div class="form-field full">
+          <label>負責人 / 職稱（選填）<span class="en">Person / Title (optional)</span></label>
+          <input type="text" id="ni-poster" list="poster-list" placeholder="例 e.g.：Hanyun @ PE、Casey @ Director of Academics">
+          <datalist id="poster-list"></datalist>
+        </div>
+        <div class="form-field full">
+          <label>公告內容 <span class="en">Notice Content</span></label>
+          <textarea class="notice-input" id="ni-text" placeholder="輸入要公告給老師的內容…可直接貼上 Google 文件／表單網址，會自動轉成可點擊連結。&#10;Type the notice for teachers. Paste Google Doc / Form links — they become clickable automatically."></textarea>
+          <div class="notice-hint">↵ 換行可分段　·　網址（http／https）會自動變成連結　·　支援 [文字](網址) 格式<span class="en">Line breaks split paragraphs · URLs auto-link · [text](url) supported</span></div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" id="ni-submit" onclick="submitNotice()" disabled>＋ 發布公告　Publish</button>
+        <button class="btn-cancel" id="ni-cancel" onclick="cancelNoticeEdit()">取消修改 Cancel</button>
+      </div>
+    </div>
+
+    <!-- Filter row：依年段篩選「行事曆精選」 -->
+    <div class="prev-filter" id="notice-filter" style="border-left-color:var(--ai); display:none">
+      <span class="prev-filter-label">年段篩選 <span class="en">Grade Band</span></span>
+      <select class="prev-select" id="grade-filter" onchange="setGradeFilter(this.value)">
+        <option value="">全部年段 All</option>
+        <option value="g15">Gr.1-5</option>
+        <option value="g68">Gr.6-8</option>
+        <option value="g912">Gr.9-12</option>
+      </select>
+      <button class="prev-filter-reset" id="notice-filter-reset" onclick="resetGradeFilter()" style="display:none">✕ 重設 Reset</button>
+      <span class="prev-filter-count" id="notice-filter-count"></span>
+    </div>
+
+    <!-- 行事曆精選（由老師在行事曆勾選帶入） -->
+    <div id="calendar-highlights"></div>
+
+    <div id="notice-list">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <div class="state-text">連接資料庫中… Connecting…</div>
+      </div>
+    </div>
+  </div>
+
+<!-- ════════════════════ 行事曆 PANE ════════════════════ -->
+  <div class="mode-pane" id="pane-calendar">
 
 <!-- Form -->
   <div class="form-card" id="form-card">
     <div class="form-grid">
       <div class="form-field">
-        <label>開始日期</label>
+        <label>開始日期 <span class="en">Start Date</span></label>
         <input type="date" id="inp-date-start" oninput="onDateChange()" onchange="onDateChange()">
       </div>
       <div class="form-field">
-        <label>結束日期（多天活動）</label>
+        <label>結束日期（多天活動）<span class="en">End Date (multi-day)</span></label>
         <input type="date" id="inp-date-end" oninput="onDateChange()" onchange="onDateChange()">
       </div>
       <div class="form-field" id="author-display-field" style="display:none">
-        <label>填表人（已登入）</label>
+        <label>填表人（已登入）<span class="en">Entered by (signed in)</span></label>
         <input type="text" id="inp-author" readonly style="cursor:not-allowed; opacity:.7">
       </div>
       <div class="form-field">
-        <label>開始時間</label>
+        <label>開始時間 <span class="en">Start Time</span></label>
         <input type="time" id="inp-time-start">
       </div>
       <div class="form-field">
-        <label>結束時間</label>
+        <label>結束時間 <span class="en">End Time</span></label>
         <input type="time" id="inp-time-end">
       </div>
       <div class="form-field" style="visibility:hidden"></div>
       <div class="multiday-preview" id="multiday-preview"></div>
       <div class="conflict-notice" id="conflict-notice"></div>
       <div class="form-field full">
-        <label>事項內容</label>
-        <input type="text" id="inp-content" placeholder="輸入行程或備忘事項…">
+        <label>事項內容 <span class="en">Item / Content</span></label>
+        <input type="text" id="inp-content" placeholder="輸入行程或備忘事項… Type a schedule item or memo…">
       </div>
       <div class="form-field full">
-        <label>活動地點（選填）</label>
-        <input type="text" id="inp-location" placeholder="地點、地址或線上連結">
+        <label>活動地點（選填）<span class="en">Location (optional)</span></label>
+        <input type="text" id="inp-location" placeholder="地點、地址或線上連結 Place, address or online link">
+      </div>
+      <div class="form-field full">
+        <label class="notice-flag-label" for="inp-in-notice">
+          <input type="checkbox" id="inp-in-notice">
+          <span class="notice-flag-box"></span>
+          <span class="notice-flag-text">顯示於週報公告　<em>Show in Weekly Notice</em></span>
+        </label>
+        <div class="notice-hint">勾選後，這筆行事曆事項會同步出現在「週報公告」上方的「📅 行事曆精選」區，讓老師一起看到。<span class="en">When checked, this item also appears under “📅 From Calendar” at the top of the Weekly Notice.</span></div>
+      </div>
+      <div class="form-field full">
+        <label>適用年段（可複選 · 用於週報年段篩選）<span class="en">Grade Bands (multi-select · used by Weekly Notice filter)</span></label>
+        <div class="grade-pick">
+          <label class="grade-chip g15"><input type="checkbox" id="inp-g15"><span>Gr.1-5</span></label>
+          <label class="grade-chip g68"><input type="checkbox" id="inp-g68"><span>Gr.6-8</span></label>
+          <label class="grade-chip g912"><input type="checkbox" id="inp-g912"><span>Gr.9-12</span></label>
+        </div>
+        <div class="notice-hint">未勾選＝視為「全校適用」，在任何年段篩選下都會顯示。<span class="en">None selected = applies school-wide; shown under every grade-band filter.</span></div>
       </div>
     </div>
     <div class="form-actions">
-      <button class="btn-primary" id="btn-submit" onclick="submitForm()" disabled>＋ 新增事項</button>
-      <button class="btn-cancel"  id="btn-cancel" onclick="cancelEdit()">取消修改</button>
+      <button class="btn-primary" id="btn-submit" onclick="submitForm()" disabled>＋ 新增事項　Add Item</button>
+      <button class="btn-cancel"  id="btn-cancel" onclick="cancelEdit()">取消修改 Cancel</button>
     </div>
   </div>
 
   <!-- Year tabs -->
   <div class="filter-bar" id="filter-bar">
-    <span class="filter-label">YEAR</span>
+    <span class="filter-label">YEAR 年份</span>
   </div>
 
   <div class="stats-bar" id="stats-bar"></div>
   <div id="event-list">
     <div class="loading-state">
       <div class="spinner"></div>
-      <div class="state-text">連接資料庫中…</div>
+      <div class="state-text">連接資料庫中… Connecting…</div>
     </div>
   </div>
+
+  </div><!-- /pane-calendar -->
 
 </div>
 <div class="toast" id="toast"></div>
@@ -992,30 +1427,30 @@ function doLogin() {
   var name = document.getElementById('login-name').value.trim();
   var pass = document.getElementById('login-passcode').value.trim();
   var err  = document.getElementById('login-error');
-  if (!name) { err.textContent = '請輸入組別／姓名'; err.classList.add('visible'); return; }
-  if (!pass) { err.textContent = '請輸入通行碼';     err.classList.add('visible'); return; }
+  if (!name) { err.textContent = '請輸入組別／姓名　Please enter your coordinator group / name'; err.classList.add('visible'); return; }
+  if (!pass) { err.textContent = '請輸入通行碼　Please enter the passcode';     err.classList.add('visible'); return; }
   if (pass === PASSCODE_ADMIN) {
     auth = { name: name, role: 'admin' };
     saveAuth(); closeLogin();
-    showToast('已以管理員身份登入 ✓');
+    showToast('已以管理員身份登入 ✓　Signed in as admin');
     applyAuth(); render(); return;
   }
   if (pass === PASSCODE_USER) {
     auth = { name: name, role: 'user' };
     saveAuth(); closeLogin();
-    showToast('登入成功，歡迎 ' + name);
+    showToast('登入成功，歡迎 ' + name + '　Welcome');
     applyAuth(); render(); return;
   }
-  err.textContent = '通行碼錯誤，請重新輸入'; err.classList.add('visible');
+  err.textContent = '通行碼錯誤，請重新輸入　Wrong passcode, please try again'; err.classList.add('visible');
 }
 
 function logout() {
-  if (!confirm('確定要登出嗎？登出後將回到瀏覽模式，無法新增事項。')) return;
+  if (!confirm('確定要登出嗎？登出後將回到瀏覽模式，無法新增事項。\n\nSign out? You will return to browsing mode and cannot add items.')) return;
   auth = { name: '', role: 'guest' };
   saveAuth(); applyAuth();
   if (editingKey) resetForm();
   render();
-  showToast('已登出');
+  showToast('已登出　Signed out');
 }
 
 function applyAuth() {
@@ -1027,27 +1462,48 @@ function applyAuth() {
   var card  = document.getElementById('form-card');
   var aField= document.getElementById('author-display-field');
   var aInput= document.getElementById('inp-author');
+  // notice form refs
+  var nCard = document.getElementById('notice-form-card');
+  var nAField = document.getElementById('ni-author-field');
+  var nAInput = document.getElementById('ni-author');
   if (!icon) return; // safety: DOM not ready
 
   if (auth.role === 'guest') {
     icon.className = 'auth-icon guest'; icon.textContent = '客';
-    text.innerHTML = '瀏覽模式 <span class="role-tag guest">GUEST</span>';
+    text.innerHTML = '瀏覽模式 Browsing <span class="role-tag guest">GUEST</span>';
     btnIn.style.display = 'inline-block'; btnOut.style.display = 'none';
     hint.classList.add('visible'); card.classList.add('locked');
     aField.style.display = 'none'; aInput.value = '';
+    if (nCard) nCard.classList.add('locked');
+    if (nAField) nAField.style.display = 'none';
+    if (nAInput) nAInput.value = '';
   } else if (auth.role === 'admin') {
     icon.className = 'auth-icon admin'; icon.textContent = '管';
-    text.innerHTML = '<strong>' + esc(auth.name) + '</strong> <span class="role-tag admin">管理員</span>';
+    text.innerHTML = '<strong>' + esc(auth.name) + '</strong> <span class="role-tag admin">管理員 Admin</span>';
     btnIn.style.display = 'none'; btnOut.style.display = 'inline-block';
     hint.classList.remove('visible'); card.classList.remove('locked');
     aField.style.display = 'flex'; aInput.value = auth.name;
+    if (nCard) nCard.classList.remove('locked');
+    if (nAField) nAField.style.display = 'flex';
+    if (nAInput) nAInput.value = auth.name;
   } else {
     icon.className = 'auth-icon user'; icon.textContent = '記';
-    text.innerHTML = '<strong>' + esc(auth.name) + '</strong> <span class="role-tag user">登記者</span>';
+    text.innerHTML = '<strong>' + esc(auth.name) + '</strong> <span class="role-tag user">登記者 Contributor</span>';
     btnIn.style.display = 'none'; btnOut.style.display = 'inline-block';
     hint.classList.remove('visible'); card.classList.remove('locked');
     aField.style.display = 'flex'; aInput.value = auth.name;
+    if (nCard) nCard.classList.remove('locked');
+    if (nAField) nAField.style.display = 'flex';
+    if (nAInput) nAInput.value = auth.name;
   }
+
+  // 只有登入者／管理員看得到「工作行事曆」；訪客只看週報公告
+  var calTab = document.getElementById('tab-calendar');
+  var tabBar = document.querySelector('.mode-tabs');
+  var isGuest = (auth.role === 'guest');
+  if (calTab) calTab.style.display = isGuest ? 'none' : '';
+  if (tabBar) tabBar.classList.toggle('solo', isGuest);
+  if (isGuest && currentMode === 'calendar') switchMode('notice');
 }
 
 function canModify(e) {
@@ -1081,6 +1537,324 @@ firebase.initializeApp({
 const db        = firebase.database();
 const eventsRef = db.ref('events');
 
+// ═══════════════════════════════════════════════════════════════
+//  週報公告  WEEKLY NOTICE  —  module
+// ═══════════════════════════════════════════════════════════════
+const noticesRef = db.ref('notices');
+
+// Departments (處室) — fixed display order + accent color
+var DEPTS = [
+  { key: 'general',        zh: '一般公告', en: 'General Notices',  color: 'shu'    },
+  { key: 'academics',      zh: '教務處',   en: 'Academics',        color: 'ai'     },
+  { key: 'studentAffairs', zh: '學務處',   en: 'Student Affairs',  color: 'midori' },
+  { key: 'guidance',       zh: '輔導處',   en: 'Guidance',         color: 'kohaku' },
+  { key: 'elementary',     zh: '國小部',   en: 'Elementary',       color: 'ai'     },
+  { key: 'middleSchool',   zh: '國中部',   en: 'Middle School',    color: 'midori' }
+];
+var DEPT_MAP = {}; DEPTS.forEach(function(d){ DEPT_MAP[d.key] = d; });
+var DEPT_ORDER = {}; DEPTS.forEach(function(d,i){ DEPT_ORDER[d.key] = i; });
+
+// Common posters per department (datalist suggestions, editable)
+var POSTERS = {
+  general:        [],
+  academics:      ['Casey @ Director of Academics','Crystal @ Academic Planning','Savannah @ Registrar','Peggy @ Equipment & Material','Fanyu @ E R&D','Eduard @ Western Teacher Liaison','Matthew @ IT'],
+  studentAffairs: ['Ricky @ Director of Student Affairs','Kevin @ Disciplinarian','Yaxin @ Activity','Lucy @ Sanitation','Hanyun @ PE'],
+  guidance:       ['Joyce @ Guidance','Maggie @ Counselor'],
+  elementary:     ['Erica @ Elementary'],
+  middleSchool:   ['House / MS Events']
+};
+
+// ── notice state ──
+var allNotices       = [];
+var noticeEditingKey = null;
+var gradeFilter      = '';   // '' | 'g15' | 'g68' | 'g912'  （篩選「行事曆精選」）
+var noticeCollapsed  = {};   // weekDate -> bool (true = collapsed)
+var currentMode      = 'notice';
+
+// ── populate selects / datalist / defaults ──
+(function initNoticeForm() {
+  var deptSel = document.getElementById('ni-dept');
+  DEPTS.forEach(function(d) {
+    var o1 = document.createElement('option'); o1.value = d.key; o1.textContent = d.zh + '　' + d.en; deptSel.appendChild(o1);
+  });
+  onDeptChange();
+  document.getElementById('ni-week').value = taiwanToday();
+
+  // grade chips: toggle .checked class for visual feedback (fallback for :has)
+  ['inp-g15','inp-g68','inp-g912'].forEach(function(id) {
+    var cb = document.getElementById(id);
+    if (!cb) return;
+    var sync = function(){ cb.closest('.grade-chip').classList.toggle('checked', cb.checked); };
+    cb.addEventListener('change', sync); sync();
+  });
+})();
+
+// read / write / reset the three grade checkboxes
+function readGrades() {
+  return {
+    g15:  document.getElementById('inp-g15').checked,
+    g68:  document.getElementById('inp-g68').checked,
+    g912: document.getElementById('inp-g912').checked
+  };
+}
+function setGrades(e) {
+  [['inp-g15', !!(e && e.g15)], ['inp-g68', !!(e && e.g68)], ['inp-g912', !!(e && e.g912)]].forEach(function(pair){
+    var cb = document.getElementById(pair[0]);
+    cb.checked = pair[1];
+    cb.closest('.grade-chip').classList.toggle('checked', pair[1]);
+  });
+}
+
+// ── mode switching ──
+function switchMode(mode) {
+  if (mode === 'calendar' && auth.role === 'guest') mode = 'notice';
+  currentMode = mode;
+  document.getElementById('tab-notice').classList.toggle('active', mode === 'notice');
+  document.getElementById('tab-calendar').classList.toggle('active', mode === 'calendar');
+  document.getElementById('pane-notice').classList.toggle('active', mode === 'notice');
+  document.getElementById('pane-calendar').classList.toggle('active', mode === 'calendar');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── department change → refresh poster suggestions ──
+function onDeptChange() {
+  var dept = document.getElementById('ni-dept').value;
+  var dl = document.getElementById('poster-list');
+  dl.innerHTML = '';
+  (POSTERS[dept] || []).forEach(function(p) {
+    var o = document.createElement('option'); o.value = p; dl.appendChild(o);
+  });
+}
+
+// ── realtime listener ──
+noticesRef.on('value', function(snap) {
+  var raw = snap.val() || {};
+  allNotices = Object.entries(raw).map(function(en) {
+    return Object.assign({}, en[1], { fbKey: en[0] });
+  });
+  renderNotices();
+});
+
+// ── submit (create / update) ──
+function submitNotice() {
+  if (auth.role === 'guest') { showToast('請先登入才能發布公告　Sign in to publish'); openLogin(); return; }
+  var week   = document.getElementById('ni-week').value.trim();
+  var dept   = document.getElementById('ni-dept').value;
+  var poster = document.getElementById('ni-poster').value.trim();
+  var textEl = document.getElementById('ni-text');
+  var content= textEl.value.trim();
+
+  if (!week)    return showToast('請選擇週報日期　Please choose a notice date');
+  if (!dept)    return showToast('請選擇處室　Please choose a department');
+  if (!content) return showToast('請輸入公告內容　Please enter the notice content');
+
+  var btn = document.getElementById('ni-submit');
+  btn.disabled = true;
+
+  if (noticeEditingKey) {
+    var upd = {
+      weekDate: week, dept: dept, poster: poster,
+      content: content, author: auth.name,
+      updatedAt: Date.now(), updatedBy: auth.name
+    };
+    var orig = allNotices.find(function(x){ return x.fbKey === noticeEditingKey; });
+    if (orig && !orig.createdBy) upd.createdBy = orig.author || auth.name;
+    noticesRef.child(noticeEditingKey).update(upd)
+      .then(function(){ showToast('公告已更新 ✓　Notice updated'); resetNoticeForm(); })
+      .catch(function(){ showToast('儲存失敗，請檢查網路　Save failed, check your connection'); })
+      .finally(function(){ btn.disabled = !isOnline; });
+  } else {
+    noticesRef.push({
+      weekDate: week, dept: dept, poster: poster,
+      content: content, author: auth.name,
+      createdBy: auth.name, createdAt: Date.now()
+    })
+    .then(function(){
+      document.getElementById('ni-poster').value = '';
+      textEl.value = '';
+      showToast('公告已發布並同步 ✓　Notice published & synced');
+    })
+    .catch(function(){ showToast('發布失敗，請檢查網路　Publish failed, check your connection'); })
+    .finally(function(){ btn.disabled = !isOnline; });
+  }
+}
+
+// ── edit ──
+function startNoticeEdit(key) {
+  var n = allNotices.find(function(x){ return x.fbKey === key; });
+  if (!n) return;
+  if (!canModify(n)) { showToast(auth.role === 'guest' ? '請先登入才能修改　Sign in to edit' : '只能修改自己發布的公告　You can only edit your own posts'); return; }
+  noticeEditingKey = key;
+  document.getElementById('ni-week').value = n.weekDate || taiwanToday();
+  document.getElementById('ni-dept').value = n.dept || 'general';
+  onDeptChange();
+  document.getElementById('ni-poster').value = n.poster || '';
+  document.getElementById('ni-text').value   = n.content || '';
+
+  var card = document.getElementById('notice-form-card');
+  card.classList.add('editing');
+  var btn = document.getElementById('ni-submit');
+  btn.textContent = '✎ 儲存修改　Save'; btn.classList.add('save-btn');
+  document.getElementById('ni-cancel').style.display = 'inline-block';
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(function(){ document.getElementById('ni-text').focus(); }, 350);
+  renderNotices();
+}
+
+function cancelNoticeEdit() { resetNoticeForm(); showToast('已取消修改　Edit cancelled'); }
+
+function resetNoticeForm() {
+  noticeEditingKey = null;
+  var card = document.getElementById('notice-form-card');
+  card.classList.remove('editing');
+  var btn = document.getElementById('ni-submit');
+  btn.textContent = '＋ 發布公告　Publish'; btn.classList.remove('save-btn');
+  document.getElementById('ni-cancel').style.display = 'none';
+  document.getElementById('ni-week').value   = taiwanToday();
+  document.getElementById('ni-dept').selectedIndex = 0;
+  onDeptChange();
+  document.getElementById('ni-poster').value = '';
+  document.getElementById('ni-text').value   = '';
+  renderNotices();
+}
+
+// ── delete ──
+function deleteNotice(key) {
+  var n = allNotices.find(function(x){ return x.fbKey === key; });
+  if (!n) return;
+  if (!canModify(n)) { showToast(auth.role === 'guest' ? '請先登入才能刪除　Sign in to delete' : '只能刪除自己發布的公告　You can only delete your own posts'); return; }
+  if (!confirm('確定要刪除這則公告？\n\nDelete this notice?')) return;
+  if (noticeEditingKey === key) resetNoticeForm();
+  noticesRef.child(key).remove()
+    .then(function(){ showToast('已刪除　Deleted'); })
+    .catch(function(){ showToast('刪除失敗　Delete failed'); });
+}
+
+// ── filters ──
+function setGradeFilter(v) { gradeFilter = v; renderCalendarHighlights(); }
+function resetGradeFilter() { gradeFilter = ''; var s = document.getElementById('grade-filter'); if (s) s.value = ''; renderCalendarHighlights(); }
+function toggleWeek(w)          { noticeCollapsed[w] = !noticeCollapsed[w]; renderNotices(); }
+
+// ── URL / markdown auto-linking ──
+function linkify(raw) {
+  raw = String(raw || '');
+  var re = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s<]+)/g;
+  var out = '', last = 0, m;
+  while ((m = re.exec(raw)) !== null) {
+    out += esc(raw.slice(last, m.index));
+    if (m[2]) {
+      out += '<a href="' + esc(m[2]) + '" target="_blank" rel="noopener">' + esc(m[1]) + '</a>';
+    } else {
+      var url = m[3], trail = '';
+      var mt = url.match(/[)\].,;!?，。、）】]+$/);
+      if (mt) { trail = url.slice(url.length - mt[0].length); url = url.slice(0, url.length - mt[0].length); }
+      out += '<a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(url) + '</a>' + esc(trail);
+    }
+    last = re.lastIndex;
+  }
+  out += esc(raw.slice(last));
+  return out.replace(/\n/g, '<br>');
+}
+
+// ── week header label ──
+function fmtWeekHeader(d) {
+  var p = d.split('-');
+  var WD = ['日','一','二','三','四','五','六'];
+  var WE = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var i = dowFromYMD(+p[0], +p[1], +p[2]);
+  return { date: p[1] + '/' + p[2] + '（週' + WD[i] + ' ' + WE[i] + '）', year: p[0] };
+}
+
+// ── render ──
+function renderNotices() {
+  var listEl = document.getElementById('notice-list');
+  if (!listEl) return;
+
+  var pool = allNotices;
+
+  if (!pool.length) {
+    listEl.innerHTML = '<div class="notice-empty"><div class="state-icon" style="font-size:26px;opacity:.4">📭</div>' +
+      '<div class="state-text">目前還沒有任何公告　No notices yet</div></div>';
+    return;
+  }
+
+  // group by week
+  var byWeek = {};
+  pool.forEach(function(n) {
+    var w = n.weekDate || '0000-00-00';
+    (byWeek[w] = byWeek[w] || []).push(n);
+  });
+  var weeks = Object.keys(byWeek).sort().reverse();   // newest first
+
+  // collapse defaults: newest week open, others collapsed
+  if (weeks.length) {
+    var newest = weeks[0];
+    weeks.forEach(function(w){ if (!(w in noticeCollapsed)) noticeCollapsed[w] = (w !== newest); });
+  }
+
+  var html = '';
+  weeks.forEach(function(w, wi) {
+    var items = byWeek[w];
+    var hdr = fmtWeekHeader(w);
+    var collapsed = !!noticeCollapsed[w];
+
+    html += '<div class="notice-week' + (collapsed ? ' collapsed' : '') + '">';
+    html += '<div class="notice-week-head" onclick="toggleWeek(\'' + w + '\')">';
+    html += '<span class="nw-issue">週報 NOTICE</span>';
+    html += '<span class="nw-date">' + hdr.date + '</span>';
+    html += '<span class="nw-year">' + hdr.year + '</span>';
+    if (wi === 0) html += '<span class="nw-latest-flag">最新 Latest</span>';
+    html += '<span class="nw-meta"><span class="nw-count">' + items.length + ' 則 items</span>';
+    html += '<span class="nw-chevron">▼</span></span>';
+    html += '</div>';
+
+    html += '<div class="nw-body">';
+    // group by dept in fixed order
+    var byDept = {};
+    items.forEach(function(n){ (byDept[n.dept] = byDept[n.dept] || []).push(n); });
+    DEPTS.forEach(function(d) {
+      var di = byDept[d.key];
+      if (!di || !di.length) return;
+      // sort within dept by createdAt
+      di.sort(function(a,b){ return (a.createdAt||0) - (b.createdAt||0); });
+      html += '<div class="dept-group dept-c-' + d.color + '">';
+      html += '<div class="dept-head"><span class="dept-bar"></span>';
+      html += '<span class="dept-zh">' + d.zh + '</span><span class="dept-en">' + d.en + '</span></div>';
+      di.forEach(function(n){ html += renderNoticeItem(n); });
+      html += '</div>';
+    });
+    // any unknown dept (defensive)
+    Object.keys(byDept).forEach(function(k){
+      if (DEPT_MAP[k]) return;
+      html += '<div class="dept-group dept-c-shu"><div class="dept-head"><span class="dept-bar"></span><span class="dept-zh">' + esc(k) + '</span></div>';
+      byDept[k].forEach(function(n){ html += renderNoticeItem(n); });
+      html += '</div>';
+    });
+    html += '</div></div>';
+  });
+
+  listEl.innerHTML = html;
+}
+
+function renderNoticeItem(n) {
+  var isEditing = n.fbKey === noticeEditingKey;
+  var canMod = canModify(n);
+  var h = '<div class="notice-item' + (isEditing ? ' is-editing' : '') + '">';
+  h += '<div class="ni-main">';
+  if (n.poster) h += '<span class="ni-poster">' + esc(n.poster) + '</span>';
+  h += '<div class="ni-content">' + linkify(n.content || '') + '</div>';
+  if (n.author) h += '<div class="ni-byline">— ' + esc(n.author) + (n.updatedBy ? '（已編輯 edited）' : '') + '</div>';
+  h += '</div>';
+  h += '<div class="ni-actions">';
+  var dis = (isEditing || !canMod) ? ' disabled' : '';
+  var ttl = !canMod ? (' title="' + (auth.role === 'guest' ? '請先登入 Sign in' : '只能修改／刪除自己發布的公告 You can only edit/delete your own posts') + '"') : '';
+  h += '<button class="btn-edit" onclick="startNoticeEdit(\'' + n.fbKey + '\')"' + dis + ttl + '>修改 Edit</button>';
+  h += '<button class="btn-delete" onclick="deleteNotice(\'' + n.fbKey + '\')"' + dis + ttl + '>刪除 Delete</button>';
+  h += '</div></div>';
+  return h;
+}
+// ═══════════ end Weekly Notice module ═══════════
+
 // ─── DOM refs ────────────────────────────────────────────────────
 const connDot   = document.getElementById('conn-dot');
 const connText  = document.getElementById('conn-text');
@@ -1093,8 +1867,10 @@ let isOnline = false;
 db.ref('.info/connected').on('value', function(snap) {
   isOnline             = snap.val() === true;
   connDot.className    = 'conn-dot ' + (isOnline ? 'online' : 'offline');
-  connText.textContent = isOnline ? '已連線 · 即時同步中' : '目前離線';
+  connText.textContent = isOnline ? '已連線 · 即時同步中　Online · Live-synced' : '目前離線　Offline';
   btnSubmit.disabled   = !isOnline;
+  var niBtn = document.getElementById('ni-submit');
+  if (niBtn) niBtn.disabled = !isOnline;
 });
 
 // ─── Taiwan timezone → see taiwanToday() / taiwanNow() in date utilities below ─────
@@ -1134,6 +1910,7 @@ eventsRef.on('value', function(snap) {
 
   renderTabs(availYears);
   render();
+  renderCalendarHighlights();
   // Re-check conflicts after data loads (form has default time pre-filled)
   if (typeof renderConflicts === 'function') renderConflicts();
 });
@@ -1145,7 +1922,7 @@ function onDateChange() {
   var p = document.getElementById('multiday-preview');
   if (s && e && e > s) {
     var days = dateDiffDays(s, e) + 1;
-    p.textContent = '多天活動：將自動建立 ' + days + ' 筆資料（' + fmtShort(s) + ' ～ ' + fmtShort(e) + '）';
+    p.textContent = '多天活動：將自動建立 ' + days + ' 筆資料（' + fmtShort(s) + ' ～ ' + fmtShort(e) + '）　Multi-day: ' + days + ' entries will be created';
     p.classList.add('visible');
   } else {
     p.classList.remove('visible');
@@ -1161,15 +1938,17 @@ function submitForm() {
   var content   = document.getElementById('inp-content').value.trim();
   var author    = auth.name;   // forced to logged-in name
   var location  = document.getElementById('inp-location').value.trim();
+  var inNotice  = document.getElementById('inp-in-notice').checked;
+  var grades    = readGrades();
 
   // Auth gate
-  if (auth.role === 'guest') { showToast('請先登入才能新增事項'); openLogin(); return; }
+  if (auth.role === 'guest') { showToast('請先登入才能新增事項　Sign in to add items'); openLogin(); return; }
 
-  if (!dateStart)  return showToast('請選擇開始日期');
-  if (!timeStart)  return showToast('請填寫開始時間');
-  if (!content)    return showToast('請輸入事項內容');
-  if (dateEnd && dateEnd < dateStart) return showToast('結束日期不可早於開始日期');
-  if (timeEnd && !dateEnd && timeEnd < timeStart) return showToast('結束時間不可早於開始時間');
+  if (!dateStart)  return showToast('請選擇開始日期　Please choose a start date');
+  if (!timeStart)  return showToast('請填寫開始時間　Please enter a start time');
+  if (!content)    return showToast('請輸入事項內容　Please enter the content');
+  if (dateEnd && dateEnd < dateStart) return showToast('結束日期不可早於開始日期　End date cannot be before start date');
+  if (timeEnd && !dateEnd && timeEnd < timeStart) return showToast('結束時間不可早於開始時間　End time cannot be before start time');
 
   btnSubmit.disabled = true;
 
@@ -1179,7 +1958,9 @@ function submitForm() {
       timeEnd:   timeEnd   || '',
       content:   content,
       location:  location  || '',
-      author:    author    || '未署名',
+      author:    author    || '未署名 Unsigned',
+      inNotice:  inNotice,
+      g15:  grades.g15, g68: grades.g68, g912: grades.g912,
       updatedAt: Date.now(),
       updatedBy: auth.name
     };
@@ -1187,13 +1968,20 @@ function submitForm() {
     var origEv = allEvents.find(function(x){ return x.fbKey === editingKey; });
     if (origEv && !origEv.createdBy) updatePayload.createdBy = origEv.author || auth.name;
 
+    // If this is a multi-day group, apply the notice flag + grade tags to every sibling day
+    var editingEv0 = allEvents.find(function(x){ return x.fbKey === editingKey; });
+    if (editingEv0 && editingEv0.groupId) {
+      var sibs = allEvents.filter(function(x){ return x.groupId === editingEv0.groupId && x.fbKey !== editingKey; });
+      sibs.forEach(function(s){ eventsRef.child(s.fbKey).update({ inNotice: inNotice, g15: grades.g15, g68: grades.g68, g912: grades.g912 }); });
+    }
+
     eventsRef.child(editingKey).update(updatePayload)
     .then(function() {
-      showToast('修改已儲存 ✓');
+      showToast('修改已儲存 ✓　Changes saved');
       activeYear = dateStart.slice(0,4);
       resetForm();
     })
-    .catch(function() { showToast('儲存失敗，請檢查網路'); })
+    .catch(function() { showToast('儲存失敗，請檢查網路　Save failed, check your connection'); })
     .finally(function() { btnSubmit.disabled = !isOnline; });
   } else {
     var isMulti = dateEnd && dateEnd > dateStart;
@@ -1208,8 +1996,10 @@ function submitForm() {
         timeEnd:   timeEnd   || '',
         content:   content + label,
         location:  location  || '',
-        author:    author    || '未署名',
+        author:    author    || '未署名 Unsigned',
         groupId:   groupId,
+        inNotice:  inNotice,
+        g15:  grades.g15, g68: grades.g68, g912: grades.g912,
         createdAt: Date.now()
       });
     });
@@ -1218,9 +2008,9 @@ function submitForm() {
       .then(function() {
         clearInputs();
         activeYear = (dates[dates.length - 1] || dateStart).slice(0,4);
-        showToast(total > 1 ? ('已建立 ' + total + ' 天的行程 ✓') : '已新增並同步完成 ✓');
+        showToast(total > 1 ? ('已建立 ' + total + ' 天的行程 ✓　' + total + '-day schedule created') : '已新增並同步完成 ✓　Added & synced');
       })
-      .catch(function() { showToast('新增失敗，請檢查網路'); })
+      .catch(function() { showToast('新增失敗，請檢查網路　Add failed, check your connection'); })
       .finally(function() { btnSubmit.disabled = !isOnline; });
   }
 }
@@ -1230,7 +2020,7 @@ function startEdit(fbKey) {
   var e = allEvents.find(function(x) { return x.fbKey === fbKey; });
   if (!e) return;
   if (!canModify(e)) {
-    showToast(auth.role === 'guest' ? '請先登入才能修改' : '只能修改自己新增的事項');
+    showToast(auth.role === 'guest' ? '請先登入才能修改　Sign in to edit' : '只能修改自己新增的事項　You can only edit your own items');
     return;
   }
   editingKey = fbKey;
@@ -1244,10 +2034,12 @@ function startEdit(fbKey) {
   document.getElementById('inp-content').value    = cleanContent;
   document.getElementById('inp-author').value     = e.author    || '';
   document.getElementById('inp-location').value   = e.location  || '';
+  document.getElementById('inp-in-notice').checked = !!e.inNotice;
+  setGrades(e);
   document.getElementById('multiday-preview').classList.remove('visible');
 
   formCard.classList.add('editing');
-  btnSubmit.textContent = '✎ 儲存修改';
+  btnSubmit.textContent = '✎ 儲存修改　Save';
   btnSubmit.classList.add('save-btn');
   btnCancel.style.display = 'inline-block';
 
@@ -1261,36 +2053,36 @@ function deleteEvent(fbKey) {
   var e = allEvents.find(function(x) { return x.fbKey === fbKey; });
   if (!e) return;
   if (!canModify(e)) {
-    showToast(auth.role === 'guest' ? '請先登入才能刪除' : '只能刪除自己新增的事項');
+    showToast(auth.role === 'guest' ? '請先登入才能刪除　Sign in to delete' : '只能刪除自己新增的事項　You can only delete your own items');
     return;
   }
   if (e.groupId) {
     var siblings = allEvents.filter(function(x) { return x.groupId === e.groupId; });
     if (siblings.length > 1) {
-      var all = confirm('此活動共有 ' + siblings.length + ' 天的行程。\n\n確定 → 刪除「全部 ' + siblings.length + ' 天」\n取消 → 只刪除這一天');
+      var all = confirm('此活動共有 ' + siblings.length + ' 天的行程。\n確定 → 刪除「全部 ' + siblings.length + ' 天」\n取消 → 只刪除這一天\n\nThis event spans ' + siblings.length + ' days.\nOK → delete ALL ' + siblings.length + ' days · Cancel → delete this day only');
       if (all) {
         Promise.all(siblings.map(function(x) { return eventsRef.child(x.fbKey).remove(); }))
-          .then(function() { showToast('已刪除全部 ' + siblings.length + ' 天 ✓'); })
-          .catch(function() { showToast('刪除失敗'); });
+          .then(function() { showToast('已刪除全部 ' + siblings.length + ' 天 ✓　Deleted all ' + siblings.length + ' days'); })
+          .catch(function() { showToast('刪除失敗　Delete failed'); });
         return;
       }
     }
   } else {
-    if (!confirm('確定要刪除這筆事項？')) return;
+    if (!confirm('確定要刪除這筆事項？\n\nDelete this item?')) return;
   }
   if (editingKey === fbKey) resetForm();
   eventsRef.child(fbKey).remove()
-    .then(function() { showToast('已刪除'); })
-    .catch(function() { showToast('刪除失敗'); });
+    .then(function() { showToast('已刪除　Deleted'); })
+    .catch(function() { showToast('刪除失敗　Delete failed'); });
 }
 
 // ─── Reset ───────────────────────────────────────────────────────
-function cancelEdit() { resetForm(); showToast('已取消修改'); }
+function cancelEdit() { resetForm(); showToast('已取消修改　Edit cancelled'); }
 
 function resetForm() {
   editingKey = null;
   formCard.classList.remove('editing');
-  btnSubmit.textContent = '＋ 新增事項';
+  btnSubmit.textContent = '＋ 新增事項　Add Item';
   btnSubmit.classList.remove('save-btn');
   btnCancel.style.display = 'none';
   document.getElementById('multiday-preview').classList.remove('visible');
@@ -1308,6 +2100,8 @@ function clearInputs() {
   document.getElementById('inp-content').value    = '';
   document.getElementById('inp-author').value     = '';
   document.getElementById('inp-location').value   = '';
+  document.getElementById('inp-in-notice').checked = false;
+  setGrades({});
   document.getElementById('multiday-preview').classList.remove('visible');
   document.getElementById('conflict-notice').classList.remove('visible');
 }
@@ -1487,21 +2281,21 @@ function render() {
   var pastDefaultCount = pastDefault.length;
 
   statsEl.innerHTML = yearEvents.length
-    ? '<span>共 <span class="count">' + yearEvents.length + '</span> 項事項</span>' +
+    ? '<span>共 <span class="count">' + yearEvents.length + '</span> 項事項 items</span>' +
       '<span class="divider">|</span>' +
-      '<span>即將到來 <span class="count">' + allUpcoming.length + '</span></span>' +
+      '<span>即將到來 Upcoming <span class="count">' + allUpcoming.length + '</span></span>' +
       '<span class="divider">|</span>' +
-      '<span>已過去 ' + allPast.length + '</span>'
+      '<span>已過去 Past ' + allPast.length + '</span>'
     : '';
 
   if (!yearEvents.length) {
-    listEl.innerHTML = '<div class="empty-state"><div class="state-icon">📋</div><div class="state-text">' + activeYear + ' 年尚無任何事項</div></div>';
+    listEl.innerHTML = '<div class="empty-state"><div class="state-icon">📋</div><div class="state-text">' + activeYear + ' 年尚無任何事項　No items in ' + activeYear + '</div></div>';
     return;
   }
 
   var html = '';
 
-  var MONTH_ZH = ['','1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  var MONTH_ZH = ['','1月 Jan','2月 Feb','3月 Mar','4月 Apr','5月 May','6月 Jun','7月 Jul','8月 Aug','9月 Sep','10月 Oct','11月 Nov','12月 Dec'];
 
   // ── Upcoming ──
   // collect distinct years & months from allUpcoming for filter dropdowns
@@ -1521,37 +2315,37 @@ function render() {
     filteredUpcom = upcoming;   // default: next 1 month
   }
   var upcomCollapsedCount = collapseGroups(filteredUpcom).length;
-  var upcomLabel = (upcomFilterYear || upcomFilterMonth) ? upcomCollapsedCount + ' 項' : collapseGroups(upcoming).length + ' 項（1 個月內）';
+  var upcomLabel = (upcomFilterYear || upcomFilterMonth) ? upcomCollapsedCount + ' 項 items' : collapseGroups(upcoming).length + ' 項（1 個月內）items (within 1 month)';
 
-  html += '<div class="section-heading"><span class="section-title upcoming">Upcoming</span><div class="section-rule"></div><span class="section-count">' + upcomLabel + '</span></div>';
+  html += '<div class="section-heading"><span class="section-title upcoming">Upcoming 即將到來</span><div class="section-rule"></div><span class="section-count">' + upcomLabel + '</span></div>';
 
   // Filter row (always visible)
   html += '<div class="prev-filter" style="border-left-color:var(--accent)">';
-  html += '<span class="prev-filter-label">篩選</span>';
+  html += '<span class="prev-filter-label">篩選 Filter</span>';
   html += '<select class="prev-select" onchange="setUpcomYear(this.value)">';
-  html += '<option value="">全部年份</option>';
+  html += '<option value="">全部年份 All years</option>';
   upcomYears.forEach(function(y) {
     html += '<option value="' + y + '"' + (upcomFilterYear === y ? ' selected' : '') + '>' + y + ' 年</option>';
   });
   html += '</select>';
   if (upcomFilterYear) {
     html += '<select class="prev-select" onchange="setUpcomMonth(this.value)">';
-    html += '<option value="">全部月份</option>';
+    html += '<option value="">全部月份 All months</option>';
     upcomMonths.forEach(function(m) {
       html += '<option value="' + m + '"' + (upcomFilterMonth === m ? ' selected' : '') + '>' + MONTH_ZH[+m] + '</option>';
     });
     html += '</select>';
   }
   if (upcomFilterYear || upcomFilterMonth) {
-    html += '<button class="prev-filter-reset" onclick="resetUpcomFilter()">✕ 重設</button>';
+    html += '<button class="prev-filter-reset" onclick="resetUpcomFilter()">✕ 重設 Reset</button>';
   }
-  html += '<span class="prev-filter-count">' + collapseGroups(filteredUpcom).length + ' 筆</span>';
+  html += '<span class="prev-filter-count">' + collapseGroups(filteredUpcom).length + ' 筆 items</span>';
   html += '</div>';
 
   // Collapse multi-day groups into single representative items
   var displayUpcom = collapseGroups(filteredUpcom);
   if (!displayUpcom.length) {
-    html += '<div class="empty-state" style="padding:20px 0"><div class="state-text">此區間無事項</div></div>';
+    html += '<div class="empty-state" style="padding:20px 0"><div class="state-text">此區間無事項　No items in this range</div></div>';
   } else {
     displayUpcom.forEach(function(e) { html += renderItem(e, false, isSearching); });
   }
@@ -1575,12 +2369,12 @@ function render() {
     filteredPast = pastDefault;  // default: last 1 month only
   }
 
-  var toggleLabel = showPrev ? '▲ 收起' : '▼ 展開';
+  var toggleLabel = showPrev ? '▲ 收起 Collapse' : '▼ 展開 Expand';
   var toggleClass = showPrev ? ' open' : '';
   html += '<div class="section-heading" style="margin-top:40px">';
-  html += '<span class="section-title">Previous</span>';
+  html += '<span class="section-title">Previous 已過去</span>';
   html += '<div class="section-rule"></div>';
-  html += '<span class="section-count">' + (prevFilterYear || prevFilterMonth ? filteredPast.length : pastDefaultCount) + ' 項' + (prevFilterYear || prevFilterMonth ? '' : '（1 個月內）') + '</span>';
+  html += '<span class="section-count">' + (prevFilterYear || prevFilterMonth ? filteredPast.length : pastDefaultCount) + ' 項' + (prevFilterYear || prevFilterMonth ? '' : '（1 個月內）within 1 month') + '</span>';
   if (allPast.length) {
     html += '<button class="prev-toggle' + toggleClass + '" onclick="togglePrev()">' + toggleLabel + '</button>';
   }
@@ -1589,11 +2383,11 @@ function render() {
   if (showPrev && allPast.length) {
     // Filter row
     html += '<div class="prev-filter">';
-    html += '<span class="prev-filter-label">篩選</span>';
+    html += '<span class="prev-filter-label">篩選 Filter</span>';
 
     // Year select
     html += '<select class="prev-select" onchange="setPrevYear(this.value)">';
-    html += '<option value="">全部年份</option>';
+    html += '<option value="">全部年份 All years</option>';
     pastYears.forEach(function(y) {
       html += '<option value="' + y + '"' + (prevFilterYear === y ? ' selected' : '') + '>' + y + ' 年</option>';
     });
@@ -1602,7 +2396,7 @@ function render() {
     // Month select (only when year is chosen)
     if (prevFilterYear) {
       html += '<select class="prev-select" onchange="setPrevMonth(this.value)">';
-      html += '<option value="">全部月份</option>';
+      html += '<option value="">全部月份 All months</option>';
       pastMonths.forEach(function(m) {
         html += '<option value="' + m + '"' + (prevFilterMonth === m ? ' selected' : '') + '>' + MONTH_ZH[+m] + '</option>';
       });
@@ -1610,14 +2404,14 @@ function render() {
     }
 
     if (prevFilterYear || prevFilterMonth) {
-      html += '<button class="prev-filter-reset" onclick="resetPrevFilter()">✕ 重設</button>';
+      html += '<button class="prev-filter-reset" onclick="resetPrevFilter()">✕ 重設 Reset</button>';
     }
-    html += '<span class="prev-filter-count">' + collapseGroups(filteredPast).length + ' 筆</span>';
+    html += '<span class="prev-filter-count">' + collapseGroups(filteredPast).length + ' 筆 items</span>';
     html += '</div>';
 
     var displayPast = collapseGroups(filteredPast);
     if (!displayPast.length) {
-      html += '<div class="empty-state" style="padding:20px 0"><div class="state-text">此區間無資料</div></div>';
+      html += '<div class="empty-state" style="padding:20px 0"><div class="state-text">此區間無資料　No data in this range</div></div>';
     } else {
       displayPast.forEach(function(e) { html += renderItem(e, true, isSearching); });
     }
@@ -1639,24 +2433,25 @@ function renderItem(e, isPast, isSearching) {
   var dayBadge = '';
   var dateLabel = '';
   var WD_ZH = ['日','一','二','三','四','五','六'];
+  var WD_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
   if (isMulti && e.dateStart && e.dateEnd && e.dateStart !== e.dateEnd) {
     // Collapsed multi-day event
     var sp = e.dateStart.split('-');
     var ep = e.dateEnd.split('-');
-    var swd = WD_ZH[dowFromYMD(+sp[0], +sp[1], +sp[2])];
-    var ewd = WD_ZH[dowFromYMD(+ep[0], +ep[1], +ep[2])];
+    var sdow = dowFromYMD(+sp[0], +sp[1], +sp[2]);
+    var edow = dowFromYMD(+ep[0], +ep[1], +ep[2]);
     var totalDays = e.groupCount || (dateDiffDays(e.dateStart, e.dateEnd) + 1);
-    dateLabel = sp[1] + '/' + sp[2] + '（' + swd + '）' +
+    dateLabel = sp[1] + '/' + sp[2] + '（' + WD_ZH[sdow] + ' ' + WD_EN[sdow] + '）' +
                 ' ～ ' +
-                ep[1] + '/' + ep[2] + '（' + ewd + '）';
-    dayBadge = '<span class="event-day-badge">共 ' + totalDays + ' 天</span>';
+                ep[1] + '/' + ep[2] + '（' + WD_ZH[edow] + ' ' + WD_EN[edow] + '）';
+    dayBadge = '<span class="event-day-badge">共 ' + totalDays + ' 天 · ' + totalDays + ' days</span>';
   } else {
     // Single-day or fallback
     var parts = e.date.split('-');
     var mm = parts[1], dd = parts[2], yy = parts[0];
-    var wdZh = WD_ZH[dowFromYMD(+yy, +mm, +dd)];
-    dateLabel = mm + '/' + dd + '（' + wdZh + '）';
+    var dow = dowFromYMD(+yy, +mm, +dd);
+    dateLabel = mm + '/' + dd + '（' + WD_ZH[dow] + ' ' + WD_EN[dow] + '）';
     var dayMatch = e.content && e.content.match(/（第\s*(\d+)\s*天／共\s*(\d+)\s*天）$/);
     if (dayMatch) dayBadge = '<span class="event-day-badge">D' + dayMatch[1] + '/' + dayMatch[2] + '</span>';
   }
@@ -1685,6 +2480,8 @@ function renderItem(e, isPast, isSearching) {
   // Content + day badge
   h += '<span class="ev-content">' + displayContent + '</span>';
   if (dayBadge) h += ' ' + dayBadge;
+  if (e.inNotice) h += ' <span class="ev-notice-badge" title="已選入週報公告 Selected for Weekly Notice">週報 Notice</span>';
+  if (e.g15 || e.g68 || e.g912) h += ' ' + gradeBadges(e);
 
   // Location
   if (e.location) {
@@ -1702,14 +2499,132 @@ function renderItem(e, isPast, isSearching) {
 
   // Actions — horizontal row on the right
   h += '<div class="item-actions">';
-  h += '<a class="btn-gcal" href="' + buildGcalLink(e) + '" target="_blank" title="加入 Google Calendar（請在新頁面選擇要加入的日曆）">📅 GCal</a>';
+  h += '<a class="btn-gcal" href="' + buildGcalLink(e) + '" target="_blank" title="加入 Google Calendar（請在新頁面選擇要加入的日曆）　Add to Google Calendar">📅 GCal</a>';
   var canMod  = canModify(e);
   var modAttr = (isEditing || !canMod) ? ' disabled' : '';
-  var modTitle= !canMod ? (' title="' + (auth.role==="guest" ? "請先登入" : "只能修改／刪除自己新增的事項") + '"') : '';
-  h += '<button class="btn-edit" onclick="startEdit(\'' + e.fbKey + '\')"' + modAttr + modTitle + '>修改</button>';
-  h += '<button class="btn-delete" onclick="deleteEvent(\'' + e.fbKey + '\')"' + modAttr + modTitle + '>刪除</button>';
+  var modTitle= !canMod ? (' title="' + (auth.role==="guest" ? "請先登入 Sign in" : "只能修改／刪除自己新增的事項 You can only edit/delete your own items") + '"') : '';
+  var nOn = e.inNotice ? ' on' : '';
+  var nLabel = e.inNotice ? '★ 週報 Notice' : '☆ 週報 Notice';
+  var nTitle = canMod ? (' title="' + (e.inNotice ? '點一下從週報公告移除 Tap to remove from Weekly Notice' : '點一下加入週報公告 Tap to add to Weekly Notice') + '"')
+                      : (' title="' + (auth.role==="guest" ? "請先登入 Sign in" : "只能設定自己新增的事項 You can only set your own items") + '"');
+  h += '<button class="btn-notice' + nOn + '" onclick="toggleEventNotice(\'' + e.fbKey + '\')"' + (canMod ? '' : ' disabled') + nTitle + '>' + nLabel + '</button>';
+  h += '<button class="btn-edit" onclick="startEdit(\'' + e.fbKey + '\')"' + modAttr + modTitle + '>修改 Edit</button>';
+  h += '<button class="btn-delete" onclick="deleteEvent(\'' + e.fbKey + '\')"' + modAttr + modTitle + '>刪除 Delete</button>';
   h += '</div></div>';
   return h;
+}
+
+// ─── 週報公告：行事曆事項切換 + 精選渲染 ──────────────────────────
+function toggleEventNotice(fbKey) {
+  var e = allEvents.find(function(x){ return x.fbKey === fbKey; });
+  if (!e) return;
+  if (!canModify(e)) {
+    showToast(auth.role === 'guest' ? '請先登入才能設定　Sign in to set this' : '只能設定自己新增的事項　You can only set your own items');
+    return;
+  }
+  var next = !e.inNotice;
+  var targets = e.groupId
+    ? allEvents.filter(function(x){ return x.groupId === e.groupId; })
+    : [e];
+  Promise.all(targets.map(function(t){ return eventsRef.child(t.fbKey).update({ inNotice: next }); }))
+    .then(function(){ showToast(next ? '已加入週報公告 ✓　Added to Weekly Notice' : '已從週報公告移除　Removed from Weekly Notice'); })
+    .catch(function(){ showToast('設定失敗，請檢查網路　Update failed, check your connection'); });
+}
+
+// ── 年段輔助 ──
+function gradeInfo(e) {
+  var arr = [];
+  if (e.g15)  arr.push({ k:'g15',  l:'1-5'  });
+  if (e.g68)  arr.push({ k:'g68',  l:'6-8'  });
+  if (e.g912) arr.push({ k:'g912', l:'9-12' });
+  return arr;
+}
+function gradeBadges(e) {
+  var arr = gradeInfo(e);
+  if (!arr.length) return '<span class="grade-tag all">全校 All</span>';
+  return arr.map(function(g){ return '<span class="grade-tag ' + g.k + '">Gr.' + g.l + '</span>'; }).join('');
+}
+function matchGrade(e) {
+  if (!gradeFilter) return true;
+  var arr = gradeInfo(e);
+  if (!arr.length) return true;     // 未分類＝全校適用，任何年段篩選都顯示
+  return !!e[gradeFilter];
+}
+
+// Render the "行事曆精選" block at the top of the Weekly Notice pane
+function renderCalendarHighlights() {
+  var box = document.getElementById('calendar-highlights');
+  if (!box) return;
+  var filterRow = document.getElementById('notice-filter');
+  var countEl   = document.getElementById('notice-filter-count');
+  var resetBtn  = document.getElementById('notice-filter-reset');
+
+  // collect flagged events, collapse multi-day groups to one representative
+  var flaggedAll = collapseGroups(allEvents.filter(function(e){ return e.inNotice; }));
+
+  // filter row only appears when there's something to filter
+  if (filterRow) filterRow.style.display = flaggedAll.length ? 'flex' : 'none';
+  if (resetBtn)  resetBtn.style.display  = gradeFilter ? 'inline-block' : 'none';
+
+  if (!flaggedAll.length) { box.innerHTML = ''; if (countEl) countEl.textContent = ''; return; }
+
+  // apply grade-band filter
+  var flagged = flaggedAll.filter(matchGrade);
+
+  // sort by date+time ascending (agenda order)
+  flagged.sort(function(a,b){
+    var ka = (a.dateStart || a.date) + 'T' + (a.timeStart || '00:00');
+    var kb = (b.dateStart || b.date) + 'T' + (b.timeStart || '00:00');
+    return ka < kb ? -1 : ka > kb ? 1 : 0;
+  });
+
+  if (countEl) countEl.textContent = flagged.length + ' 項 items';
+
+  var today = taiwanToday();
+  var WD = ['日','一','二','三','四','五','六'];
+  var WE = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  function dlabel(d) {
+    var p = d.split('-');
+    var i = dowFromYMD(+p[0],+p[1],+p[2]);
+    return p[1] + '/' + p[2] + '（週' + WD[i] + ' ' + WE[i] + '）';
+  }
+
+  var h = '<div class="cal-highlights">';
+  h += '<div class="cal-highlights-head">';
+  h += '<span class="ch-title">📅 行事曆精選</span>';
+  h += '<span class="ch-en">From Calendar</span>';
+  h += '<span class="ch-count">共 ' + flagged.length + ' 項 items' + (gradeFilter ? '（已篩選 filtered）' : '') + '</span>';
+  h += '</div><div class="ch-body">';
+
+  if (!flagged.length) {
+    h += '<div class="ch-item"><span class="ch-content" style="color:var(--sumi-4)">此年段目前沒有選入的行事曆事項　No calendar items selected for this grade band</span></div>';
+  }
+
+  flagged.forEach(function(e) {
+    var isMulti = !!e.groupId;
+    var dateLabel;
+    if (isMulti && e.dateStart && e.dateEnd && e.dateStart !== e.dateEnd) {
+      dateLabel = dlabel(e.dateStart) + ' ～ ' + dlabel(e.dateEnd);
+    } else {
+      dateLabel = dlabel(e.date);
+    }
+    var lastDay = (isMulti && e.dateEnd) ? e.dateEnd : e.date;
+    var past = lastDay < today;
+    var timeStr = e.timeStart ? (e.timeStart + (e.timeEnd ? (' → ' + e.timeEnd) : '')) : '';
+    var clean = (e.content || '').replace(/（第\s*\d+\s*天／共\s*\d+\s*天）$/, '').trimEnd();
+
+    h += '<div class="ch-item' + (past ? ' is-past' : '') + '">';
+    h += '<span class="ch-date">' + dateLabel + '</span>';
+    if (timeStr) { h += '<span class="ch-dash">·</span><span class="ch-time">' + timeStr + '</span>'; }
+    h += '<span class="ch-dash">—</span><span class="ch-content">' + esc(clean) + '</span>';
+    h += ' ' + gradeBadges(e);
+    if (e.location) h += '<span class="ch-dash">·</span><span class="ch-loc">◎ ' + esc(e.location) + '</span>';
+    if (e.author)   h += '<span class="ch-dash">·</span><span class="ch-author">✎ ' + esc(e.author) + '</span>';
+    h += '</div>';
+  });
+
+  h += '</div></div>';
+  box.innerHTML = h;
 }
 
 // ─── Google Calendar link ────────────────────────────────────────
@@ -1758,7 +2673,7 @@ function buildGcalLink(e) {
     '&text='     + encodeURIComponent(titleBase) +
     '&dates='    + start + '/' + end +
     '&location=' + encodeURIComponent(e.location || '') +
-    '&details='  + encodeURIComponent('填表人：' + (e.author || ''));
+    '&details='  + encodeURIComponent('填表人 Entered by：' + (e.author || ''));
 }
 
 // ─── Pure date utilities ─────────────────────────────────────────
@@ -1964,6 +2879,7 @@ function renderConflicts() {
   });
 
   var WD = ['日','一','二','三','四','五','六'];
+  var WE = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   var listHtml = allConflicts.map(function(e) {
     var clean = (e.content||'').replace(/（第\s*\d+\s*天／共\s*\d+\s*天）$/,'').trimEnd();
     var t = e.timeStart + (e.timeEnd ? (' → '+e.timeEnd) : '');
@@ -1974,13 +2890,13 @@ function renderConflicts() {
                         .sort(function(a,b){ return a.date<b.date?-1:1; });
       var first = grp[0], last = grp[grp.length-1];
       var sp = first.date.split('-'), ep = last.date.split('-');
-      var swd = WD[dowFromYMD(+sp[0],+sp[1],+sp[2])];
-      var ewd = WD[dowFromYMD(+ep[0],+ep[1],+ep[2])];
-      dateLabel = sp[1]+'/'+sp[2]+'（'+swd+'）～ '+ep[1]+'/'+ep[2]+'（'+ewd+'）<span style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;color:var(--ochre);margin-left:4px">[共 '+grp.length+' 天]</span>';
+      var sdw = dowFromYMD(+sp[0],+sp[1],+sp[2]);
+      var edw = dowFromYMD(+ep[0],+ep[1],+ep[2]);
+      dateLabel = sp[1]+'/'+sp[2]+'（'+WD[sdw]+' '+WE[sdw]+'）～ '+ep[1]+'/'+ep[2]+'（'+WD[edw]+' '+WE[edw]+'）<span style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;color:var(--ochre);margin-left:4px">[共 '+grp.length+' 天 · '+grp.length+' days]</span>';
     } else {
       var p = e.date.split('-');
-      var wd = WD[dowFromYMD(+p[0],+p[1],+p[2])];
-      dateLabel = p[1]+'/'+p[2]+'（'+wd+'）';
+      var dw = dowFromYMD(+p[0],+p[1],+p[2]);
+      dateLabel = p[1]+'/'+p[2]+'（'+WD[dw]+' '+WE[dw]+'）';
     }
     return '<li>' +
       '<span class="c-date">' + dateLabel + '</span>' +
@@ -1991,7 +2907,7 @@ function renderConflicts() {
   }).join('');
 
   notice.innerHTML =
-    '<div class="conflict-head">⚠ 時間衝突 · 已有 ' + allConflicts.length + ' 筆事項與此時段重疊，請參考是否要排入</div>' +
+    '<div class="conflict-head">⚠ 時間衝突 · 已有 ' + allConflicts.length + ' 筆事項與此時段重疊，請參考是否要排入　Time conflict · ' + allConflicts.length + ' item(s) overlap this slot</div>' +
     '<ul class="conflict-list">' + listHtml + '</ul>';
   notice.classList.add('visible');
 }
