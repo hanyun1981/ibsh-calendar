@@ -1003,11 +1003,98 @@ textarea.notice-input:focus { border-color: var(--shu); box-shadow: 0 0 0 2px rg
 }
 
 /* department group inside a week */
-.dept-group { padding: 12px 20px 6px; border-top: 1px dashed var(--sumi-6); }
+.dept-group {
+  padding: 16px 22px 12px 22px;
+  margin: 14px 12px;
+  border: 2px solid var(--sumi-5);
+  border-radius: 6px;
+  background: var(--wa);
+  box-shadow: 3px 3px 0 var(--wa-shadow);
+  position: relative;
+}
+.dept-group:first-child { margin-top: 18px; }
+
+/* Department-tinted frames */
+.nw-body .dept-c-ai      { border-color: var(--ai);      background: linear-gradient(180deg, var(--ai-wash) 0%, var(--wa) 60px); }
+.nw-body .dept-c-midori  { border-color: var(--midori);  background: linear-gradient(180deg, var(--midori-wash) 0%, var(--wa) 60px); }
+.nw-body .dept-c-kohaku  { border-color: var(--kohaku);  background: linear-gradient(180deg, var(--kohaku-wash) 0%, var(--wa) 60px); }
+.nw-body .dept-c-shu     { border-color: var(--shu);     background: linear-gradient(180deg, var(--shu-wash) 0%, var(--wa) 60px); }
+
+/* Department label chip at top-left of the frame */
+.nw-body .dept-group::before {
+  content: attr(data-dept-tag);
+  position: absolute;
+  top: -10px; left: 14px;
+  padding: 2px 12px;
+  background: var(--wa);
+  border: 2px solid currentColor;
+  border-radius: 99px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: 2px;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.nw-body .dept-c-ai::before      { color: var(--ai);     background: var(--wa); }
+.nw-body .dept-c-midori::before  { color: var(--midori); background: var(--wa); }
+.nw-body .dept-c-kohaku::before  { color: var(--kohaku); background: var(--wa); }
+.nw-body .dept-c-shu::before     { color: var(--shu);    background: var(--wa); }
+
+/* Past notices section */
+.notice-past-section {
+  margin-top: 48px;
+  opacity: .85;
+}
+.notice-past-heading {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 18px; margin-bottom: 14px;
+  background: var(--wa-3);
+  border: 1px solid var(--sumi-5);
+  border-left: 4px solid var(--sumi-4);
+  border-radius: 4px;
+  font-family: 'Shippori Mincho', serif;
+  font-size: 16px; font-weight: 600;
+  color: var(--sumi-2); letter-spacing: .05em;
+}
+.notice-past-heading .en {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px; letter-spacing: 2.5px;
+  color: var(--sumi-3); text-transform: uppercase;
+  opacity: .8;
+}
+.notice-past-count {
+  margin-left: auto;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px; letter-spacing: 1.5px;
+  padding: 3px 10px;
+  background: var(--sumi-4); color: white;
+  border-radius: 99px;
+  font-weight: 600; text-transform: uppercase;
+}
+.notice-past-section .notice-week { opacity: .9; }
+.notice-past-section .notice-week:hover { opacity: 1; }
 .dept-group:first-child { border-top: none; }
 .dept-head {
-  display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px;
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 6px 0 12px 0;
+  margin-bottom: 12px;
+  border-bottom: 1px dashed var(--sumi-5);
 }
+.dept-head .dept-zh {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 18px; font-weight: 700;
+  letter-spacing: .05em;
+}
+.dept-head .dept-en {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px; letter-spacing: 2.5px;
+  color: var(--sumi-3);
+  text-transform: uppercase; opacity: .75;
+}
+.nw-body .dept-c-ai      .dept-head .dept-zh { color: var(--ai); }
+.nw-body .dept-c-midori  .dept-head .dept-zh { color: var(--midori); }
+.nw-body .dept-c-kohaku  .dept-head .dept-zh { color: var(--kohaku); }
+.nw-body .dept-c-shu     .dept-head .dept-zh { color: var(--shu); }
 .dept-bar { width: 4px; align-self: stretch; flex-shrink: 0; }
 .dept-zh {
   font-family: 'Shippori Mincho', serif; font-weight: 700; font-size: 16px;
@@ -1421,7 +1508,7 @@ label .en { color: var(--ai); font-weight: 600; }
           <input type="text" id="ni-author" readonly style="cursor:not-allowed; opacity:.7">
         </div>
         <div class="form-field full">
-          <label>負責人 / 職稱（選填）<span class="en">Person / Title (optional)</span></label>
+          <label>職稱 / 負責人（選填）<span class="en">Title / Person (optional)</span></label>
           <input type="text" id="ni-poster" list="poster-list" placeholder="例 e.g.：Hanyun @ PE、Casey @ Director of Academics">
           <datalist id="poster-list"></datalist>
         </div>
@@ -1459,6 +1546,9 @@ label .en { color: var(--ai); font-weight: 600; }
         <div class="state-text">連接資料庫中… Connecting…</div>
       </div>
     </div>
+
+    <!-- 週報公告：已過去週報 (Previous 週報) -->
+    <div id="notice-list-past"></div>
 
     <!-- 行事曆精選：已過去 (置於頁面最下方) -->
     <div id="calendar-highlights-past"></div>
@@ -2055,52 +2145,76 @@ function renderNotices() {
   });
   var weeks = Object.keys(byWeek).sort().reverse();   // newest first
 
-  // collapse defaults: newest week open, others collapsed
-  if (weeks.length) {
-    var newest = weeks[0];
-    weeks.forEach(function(w){ if (!(w in noticeCollapsed)) noticeCollapsed[w] = (w !== newest); });
-  }
+  // Split weeks into current/upcoming vs past based on today's date
+  var today = taiwanToday();
+  // A week is considered "past" if its weekDate is BEFORE today (strict).
+  // Weeks whose date is today or in the future stay in the main list.
+  var currentWeeks = weeks.filter(function(w){ return w >= today; });
+  var pastWeeks    = weeks.filter(function(w){ return w <  today; });
 
-  var html = '';
-  weeks.forEach(function(w, wi) {
+  // collapse defaults: newest current-week open, all others (current older + past) collapsed
+  if (currentWeeks.length) {
+    var newest = currentWeeks[0];
+    currentWeeks.forEach(function(w){ if (!(w in noticeCollapsed)) noticeCollapsed[w] = (w !== newest); });
+  } else if (weeks.length) {
+    // no current weeks at all — open the newest past week for context
+    var newestAny = weeks[0];
+    weeks.forEach(function(w){ if (!(w in noticeCollapsed)) noticeCollapsed[w] = (w !== newestAny); });
+  }
+  pastWeeks.forEach(function(w){ if (!(w in noticeCollapsed)) noticeCollapsed[w] = true; });
+
+  function renderWeek(w, wi, isNewest) {
     var items = byWeek[w];
     var hdr = fmtWeekHeader(w);
     var collapsed = !!noticeCollapsed[w];
-
-    html += '<div class="notice-week' + (collapsed ? ' collapsed' : '') + '">';
-    html += '<div class="notice-week-head" onclick="toggleWeek(\'' + w + '\')">';
-    html += '<span class="nw-issue">週報 NOTICE</span>';
-    html += '<span class="nw-date">' + hdr.date + '</span>';
-    html += '<span class="nw-year">' + hdr.year + '</span>';
-    if (wi === 0) html += '<span class="nw-latest-flag">最新 Latest</span>';
-    html += '<span class="nw-meta"><span class="nw-count">' + items.length + ' 則 items</span>';
-    html += '<span class="nw-chevron">▼</span></span>';
-    html += '</div>';
-
-    html += '<div class="nw-body">';
-    // group by dept in fixed order
+    var s = '';
+    s += '<div class="notice-week' + (collapsed ? ' collapsed' : '') + '">';
+    s += '<div class="notice-week-head" onclick="toggleWeek(\'' + w + '\')">';
+    s += '<span class="nw-issue">週報 NOTICE</span>';
+    s += '<span class="nw-date">' + hdr.date + '</span>';
+    s += '<span class="nw-year">' + hdr.year + '</span>';
+    if (isNewest) s += '<span class="nw-latest-flag">最新 Latest</span>';
+    s += '<span class="nw-meta"><span class="nw-count">' + items.length + ' 則 items</span>';
+    s += '<span class="nw-chevron">▼</span></span>';
+    s += '</div>';
+    s += '<div class="nw-body">';
     var byDept = {};
-    items.forEach(function(n){ (byDept[n.dept] = byDept[n.dept] || []).push(n); });
+    items.forEach(function(n){
+      var key = normalizeDeptKey(n.dept);
+      (byDept[key] = byDept[key] || []).push(n);
+    });
     DEPTS.forEach(function(d) {
       var di = byDept[d.key];
       if (!di || !di.length) return;
-      // sort within dept by createdAt
       di.sort(function(a,b){ return (a.createdAt||0) - (b.createdAt||0); });
-      html += '<div class="dept-group dept-c-' + d.color + '">';
-      html += '<div class="dept-head"><span class="dept-bar"></span>';
-      html += '<span class="dept-zh">' + d.zh + '</span><span class="dept-en">' + d.en + '</span></div>';
-      di.forEach(function(n){ html += renderNoticeItem(n); });
-      html += '</div>';
+      s += '<div class="dept-group dept-c-' + d.color + '" data-dept-tag="' + d.zh + '">';
+      s += '<div class="dept-head"><span class="dept-bar"></span>';
+      s += '<span class="dept-zh">' + d.zh + '</span><span class="dept-en">' + d.en + '</span></div>';
+      di.forEach(function(n){ s += renderNoticeItem(n); });
+      s += '</div>';
     });
-    // any unknown dept (defensive)
-    Object.keys(byDept).forEach(function(k){
-      if (DEPT_MAP[k]) return;
-      html += '<div class="dept-group dept-c-shu"><div class="dept-head"><span class="dept-bar"></span><span class="dept-zh">' + esc(k) + '</span></div>';
-      byDept[k].forEach(function(n){ html += renderNoticeItem(n); });
-      html += '</div>';
-    });
-    html += '</div></div>';
+    s += '</div></div>';
+    return s;
+  }
+
+  var html = '';
+  currentWeeks.forEach(function(w, wi) {
+    html += renderWeek(w, wi, wi === 0);
   });
+
+  // Past weeks go into their OWN separate container at the bottom
+  var pastEl = document.getElementById('notice-list-past');
+  if (pastEl) {
+    if (pastWeeks.length) {
+      var ph = '<div class="notice-past-section">';
+      ph += '<div class="notice-past-heading">📜 Previous 已過去週報 <span class="en">Past Notices</span> <span class="notice-past-count">' + pastWeeks.length + ' 週 weeks</span></div>';
+      pastWeeks.forEach(function(w) { ph += renderWeek(w, 0, false); });
+      ph += '</div>';
+      pastEl.innerHTML = ph;
+    } else {
+      pastEl.innerHTML = '';
+    }
+  }
 
   listEl.innerHTML = html;
 }
