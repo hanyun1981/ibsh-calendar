@@ -556,6 +556,73 @@ input::placeholder { color: var(--sumi-5); font-weight: 300; font-style: italic;
 }
 .prev-toggle:hover, .prev-toggle.open { background: var(--wa-2); color: var(--sumi); border-color: var(--sumi-3); }
 
+
+/* ── 處室分區 Department sections in Upcoming ── */
+.dept-block {
+  margin-bottom: 20px;
+}
+.dept-heading {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  border-radius: 2px;
+  position: relative;
+}
+.dept-heading::before {
+  content: '▍'; font-size: 16px;
+}
+.dept-name {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 600; font-size: 17px;
+  letter-spacing: .05em;
+}
+.dept-name-en {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: 2.5px;
+  text-transform: uppercase; opacity: .7;
+}
+.dept-rule {
+  flex: 1; height: 0;
+  border-top: 1px dashed currentColor; opacity: .3;
+}
+.dept-count {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px; letter-spacing: 1.5px;
+  padding: 2px 10px; border-radius: 99px;
+  font-weight: 600; text-transform: uppercase;
+}
+/* Academic 教務處 — indigo (藍) */
+.dept-academic .dept-heading { background: var(--ai-wash); color: var(--ai); border-left: 4px solid var(--ai); }
+.dept-academic .dept-count   { background: var(--ai); color: white; }
+.dept-academic .event-item   { background: linear-gradient(90deg, rgba(44,79,124,.05) 0%, transparent 40%); border-left: 4px solid var(--ai); }
+.dept-academic .event-item:hover { box-shadow: 4px 4px 0 var(--ai-wash), 0 2px 12px rgba(44,79,124,.15); }
+
+/* Student affairs 學務處 — sage (綠) */
+.dept-student .dept-heading  { background: var(--midori-wash); color: var(--midori); border-left: 4px solid var(--midori); }
+.dept-student .dept-count    { background: var(--midori); color: white; }
+.dept-student .event-item    { background: linear-gradient(90deg, rgba(74,112,85,.05) 0%, transparent 40%); border-left: 4px solid var(--midori); }
+.dept-student .event-item:hover { box-shadow: 4px 4px 0 var(--midori-wash), 0 2px 12px rgba(74,112,85,.15); }
+
+/* Counseling 輔導室 — amber (橘) */
+.dept-counsel  .dept-heading { background: var(--kohaku-wash); color: var(--kohaku); border-left: 4px solid var(--kohaku); }
+.dept-counsel  .dept-count   { background: var(--kohaku); color: white; }
+.dept-counsel  .event-item   { background: linear-gradient(90deg, rgba(176,125,46,.06) 0%, transparent 40%); border-left: 4px solid var(--kohaku); }
+.dept-counsel  .event-item:hover { box-shadow: 4px 4px 0 var(--kohaku-wash), 0 2px 12px rgba(176,125,46,.15); }
+
+/* Other 其他 — graphite (灰) */
+.dept-other .dept-heading   { background: var(--wa-3); color: var(--sumi-3); border-left: 4px solid var(--sumi-4); }
+.dept-other .dept-count     { background: var(--sumi-4); color: white; }
+.dept-other .event-item     { border-left: 4px solid var(--sumi-4); }
+
+/* Empty state within a department block */
+.dept-block .empty-mini {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px; letter-spacing: 2px;
+  color: var(--sumi-4); text-transform: uppercase;
+  padding: 12px 16px; text-align: center;
+  border: 1px dashed var(--sumi-6); background: var(--wa);
+}
+
 /* ══ イベントカード EVENT CARDS — single-line ══ */
 .event-item {
   display: flex;
@@ -2411,7 +2478,33 @@ function render() {
   if (!displayUpcom.length) {
     html += '<div class="empty-state" style="padding:20px 0"><div class="state-text">此區間無事項　No items in this range</div></div>';
   } else {
-    displayUpcom.forEach(function(e) { html += renderItem(e, false, isSearching); });
+    // Group by department (based on author name keyword)
+    var buckets = { academic: [], student: [], counsel: [], other: [] };
+    displayUpcom.forEach(function(e) {
+      var d = classifyDept(e.author);
+      buckets[d].push(e);
+    });
+
+    // Render in fixed order: 教務 → 學務 → 輔導 → 其他
+    var deptOrder = ['academic','student','counsel','other'];
+    deptOrder.forEach(function(dept) {
+      var items = buckets[dept];
+      if (dept === 'other' && !items.length) return;   // hide 'other' when empty
+      var info = DEPT_INFO[dept];
+      html += '<div class="dept-block dept-' + dept + '">';
+      html += '<div class="dept-heading">' +
+              '<span class="dept-name">' + info.name + '</span>' +
+              '<span class="dept-name-en">' + info.en + '</span>' +
+              '<div class="dept-rule"></div>' +
+              '<span class="dept-count">' + items.length + ' 項</span>' +
+              '</div>';
+      if (!items.length) {
+        html += '<div class="empty-mini">目前無公告事項　No announcements</div>';
+      } else {
+        items.forEach(function(e) { html += renderItem(e, false, isSearching); });
+      }
+      html += '</div>';
+    });
   }
 
   // ── Previous ──
@@ -2483,6 +2576,29 @@ function render() {
 
   listEl.innerHTML = html;
 }
+
+
+// ─── Department classification ──────────────────────────────────
+// Keyword-based routing. Match against author name.
+// Returns one of: 'academic', 'student', 'counsel', 'other'
+function classifyDept(author) {
+  var s = String(author || '');
+  // 教務處：教務、課務、實研、註冊、設備、資訊
+  if (/教務|課務|實研|註冊|設備|資訊/.test(s)) return 'academic';
+  // 學務處：學務、體育、衛生、活動、生輔
+  if (/學務|體育|衛生|活動|生輔/.test(s)) return 'student';
+  // 輔導室：輔導、特教
+  if (/輔導|特教/.test(s)) return 'counsel';
+  return 'other';
+}
+
+var DEPT_INFO = {
+  academic: { name: '教務處', en: 'Academic Affairs',   order: 1 },
+  student:  { name: '學務處', en: 'Student Affairs',    order: 2 },
+  counsel:  { name: '輔導室', en: 'Counseling Office',  order: 3 },
+  other:    { name: '其他',   en: 'Other',              order: 4 }
+};
+
 
 // ─── Render single item ──────────────────────────────────────────
 function renderItem(e, isPast, isSearching) {
