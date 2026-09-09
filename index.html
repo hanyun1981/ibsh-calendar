@@ -1683,9 +1683,17 @@ var DEPT_ORDER = {}; DEPTS.forEach(function(d,i){ DEPT_ORDER[d.key] = i; });
 
 // Backward-compat: map legacy dept keys to current 3-department set
 function normalizeDeptKey(k) {
-  if (k === 'general' || k === 'elementary' || k === 'middleSchool') return 'academics';
-  if (!k) return 'academics';
-  return k;
+  var s = String(k || '');
+  // Direct matches to current 3-dept keys
+  if (s === 'academics' || s === 'studentAffairs' || s === 'guidance') return s;
+  // Legacy keys (from 6-dept version) → collapse into academics
+  if (s === 'general' || s === 'elementary' || s === 'middleSchool') return 'academics';
+  // Chinese label fallbacks (in case dept was stored as label rather than key)
+  if (/學務|體育|衛生|活動|生輔/.test(s)) return 'studentAffairs';
+  if (/輔導|特教|Guidance|Counsel/i.test(s)) return 'guidance';
+  if (/教務|課務|實研|註冊|設備|資訊|Academic|國小|國中|一般|General/i.test(s)) return 'academics';
+  // Anything else defaults to academics so it still shows up
+  return 'academics';
 }
 
 
