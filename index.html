@@ -1130,6 +1130,16 @@ textarea.notice-input:focus { border-color: var(--shu); box-shadow: 0 0 0 2px rg
 .btn-notice:disabled { opacity: .25; cursor: not-allowed; pointer-events: none; }
 
 /* ── 週報公告：行事曆精選區 ── */
+
+/* Past highlights section — muted, placed at bottom of notice page */
+.cal-highlights-past {
+  margin-top: 40px !important;
+  opacity: .75;
+  background: var(--wa-2) !important;
+}
+.cal-highlights-past .ch-title { color: var(--sumi-3) !important; }
+.cal-highlights-past .ch-item { opacity: .8; }
+
 .cal-highlights {
   margin-bottom: 26px; border: 1px solid var(--ai);
   background: var(--wa);
@@ -1449,6 +1459,9 @@ label .en { color: var(--ai); font-weight: 600; }
         <div class="state-text">連接資料庫中… Connecting…</div>
       </div>
     </div>
+
+    <!-- 行事曆精選：已過去 (置於頁面最下方) -->
+    <div id="calendar-highlights-past"></div>
   </div>
 
 <!-- ════════════════════ 行事曆 PANE ════════════════════ -->
@@ -1680,11 +1693,24 @@ function applyAuth() {
 
 function canModify(e) {
   if (auth.role === 'admin') return true;
-  if (auth.role === 'user') {
-    if (e.createdBy && e.createdBy === auth.name) return true;
-    if (!e.createdBy && e.author && e.author === auth.name) return true;
-    return false;
+  if (auth.role !== 'user') return false;
+
+  // ── Primary: match by group (組別) ──
+  // A coordinator can edit anything created by a member of the same group,
+  // regardless of the name string variation (中文/英文/暱稱都算數).
+  if (auth.group) {
+    if (e.createdGroup && e.createdGroup === auth.group) return true;
+    // Legacy records without createdGroup: infer from createdBy / author string
+    var legacyName = e.createdBy || e.author || '';
+    if (legacyName && legacyName.indexOf(auth.group) !== -1) return true;
+    // Fall back to English group name (e.g., "P.E. Coordinator")
+    var unit = orgUnitByGroup(auth.group);
+    if (unit && unit.groupEn && legacyName.toLowerCase().indexOf(unit.groupEn.toLowerCase()) !== -1) return true;
   }
+
+  // ── Secondary: exact name match (為了完全相容 — 沒選組別的舊帳號) ──
+  if (e.createdBy && e.createdBy === auth.name) return true;
+  if (!e.createdBy && e.author && e.author === auth.name) return true;
   return false;
 }
 
@@ -1899,7 +1925,8 @@ function submitNotice() {
       updatedAt: Date.now(), updatedBy: auth.name
     };
     var orig = allNotices.find(function(x){ return x.fbKey === noticeEditingKey; });
-    if (orig && !orig.createdBy) upd.createdBy = orig.author || auth.name;
+    if (orig && !orig.createdBy)    upd.createdBy    = orig.author || auth.name;
+    if (orig && !orig.createdGroup) upd.createdGroup = auth.group || '';
     noticesRef.child(noticeEditingKey).update(upd)
       .then(function(){ showToast('公告已更新 ✓　Notice updated'); resetNoticeForm(); })
       .catch(function(){ showToast('儲存失敗，請檢查網路　Save failed, check your connection'); })
@@ -1908,7 +1935,8 @@ function submitNotice() {
     noticesRef.push({
       weekDate: week, dept: dept, poster: poster,
       content: content, author: auth.name,
-      createdBy: auth.name, createdAt: Date.now()
+      createdBy: auth.name, createdGroup: auth.group || '',
+      createdAt: Date.now()
     })
     .then(function(){
       document.getElementById('ni-poster').value = '';
@@ -2206,9 +2234,10 @@ function submitForm() {
       updatedAt: Date.now(),
       updatedBy: auth.name
     };
-    // Preserve original createdBy if present; otherwise stamp it now (legacy events)
+    // Preserve original createdBy/createdGroup if present; otherwise backfill (legacy events)
     var origEv = allEvents.find(function(x){ return x.fbKey === editingKey; });
-    if (origEv && !origEv.createdBy) updatePayload.createdBy = origEv.author || auth.name;
+    if (origEv && !origEv.createdBy)    updatePayload.createdBy    = origEv.author || auth.name;
+    if (origEv && !origEv.createdGroup) updatePayload.createdGroup = auth.group || '';
 
     // If this is a multi-day group, apply the notice flag + grade tags to every sibling day
     var editingEv0 = allEvents.find(function(x){ return x.fbKey === editingKey; });
@@ -2239,6 +2268,8 @@ function submitForm() {
         content:   content + label,
         location:  location  || '',
         author:    author    || '未署名 Unsigned',
+        createdBy:    auth.name,
+        createdGroup: auth.group || '',
         groupId:   groupId,
         inNotice:  inNotice,
         g15:  grades.g15, g68: grades.g68, g912: grades.g912,
@@ -2948,14 +2979,28 @@ function renderCalendarHighlights() {
     if (!anyUpcoming) {
       h += '<div class="ch-item"><span class="ch-content" style="color:var(--sumi-4)">近期無精選事項　No upcoming highlights</span></div>';
     }
-    if (pastItems.length) {
-      h += '<div class="ch-past-heading">▍ Previous 已過去 <span class="en">' + pastItems.length + ' items</span></div>';
-      pastItems.forEach(function(e) { h += renderHighlightItem(e); });
-    }
   }
 
   h += '</div></div>';
   box.innerHTML = h;
+
+  // Render past items in a SEPARATE container at the bottom of the page
+  var pastBox = document.getElementById('calendar-highlights-past');
+  if (pastBox) {
+    if (pastItems.length) {
+      var ph = '<div class="cal-highlights cal-highlights-past">';
+      ph += '<div class="cal-highlights-head">';
+      ph += '<span class="ch-title">🗓️ 行事曆精選 · 已過去</span>';
+      ph += '<span class="ch-en">Previous Highlights</span>';
+      ph += '<span class="ch-count">共 ' + pastItems.length + ' 項 items</span>';
+      ph += '</div><div class="ch-body">';
+      pastItems.forEach(function(e) { ph += renderHighlightItem(e); });
+      ph += '</div></div>';
+      pastBox.innerHTML = ph;
+    } else {
+      pastBox.innerHTML = '';
+    }
+  }
 
   // focus the note field when an editor is open
   if (chEditingKey) {
