@@ -288,6 +288,21 @@ h1.masthead-title::after {
   letter-spacing: 1.5px; transition: all .2s; box-shadow: 2px 2px 0 var(--sumi-2);
 }
 .btn-login:hover { background: var(--ai-hi); transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--sumi-2); }
+
+/* Login group dropdown */
+.login-fields select {
+  background: var(--wa); border: 1px solid var(--sumi-5); border-radius: 4px;
+  padding: 10px 32px 10px 12px; font-family: 'Shippori Mincho','Noto Serif TC',serif;
+  font-size: 15px; color: var(--sumi); outline: none; width: 100%;
+  -webkit-appearance: none; cursor: pointer;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M0 0l5 6 5-6" fill="none" stroke="%232c4f7c" stroke-width="1.5"/></svg>');
+  background-repeat: no-repeat; background-position: right 12px center;
+  transition: all .2s;
+}
+.login-fields select:focus { border-color: var(--ai); box-shadow: 0 0 0 2px rgba(44,79,124,.15); }
+.login-fields select option { padding: 8px; }
+.login-fields select optgroup { font-family: 'Shippori Mincho', serif; font-weight: 600; color: var(--ai); }
+
 .login-error {
   font-family: 'IBM Plex Mono', monospace; font-size: 11px;
   color: var(--shu); letter-spacing: .5px; margin-top: 10px;
@@ -556,74 +571,65 @@ input::placeholder { color: var(--sumi-5); font-weight: 300; font-style: italic;
 }
 .prev-toggle:hover, .prev-toggle.open { background: var(--wa-2); color: var(--sumi); border-color: var(--sumi-3); }
 
+/* ══ イベントカード EVENT CARDS — single-line ══ */
 
-/* ── 處室分區 Department sections in Upcoming ── */
-.dept-block {
-  margin-bottom: 20px;
-}
+/* ── 處室分區 Department sections ── */
+.dept-block { margin-bottom: 20px; }
 .dept-heading {
   display: flex; align-items: center; gap: 12px;
-  padding: 10px 14px;
-  margin-bottom: 8px;
+  padding: 10px 14px; margin-bottom: 8px;
   border-radius: 2px;
-  position: relative;
 }
-.dept-heading::before {
-  content: '▍'; font-size: 16px;
-}
-.dept-name {
-  font-family: 'Shippori Mincho', serif;
-  font-weight: 600; font-size: 17px;
-  letter-spacing: .05em;
-}
-.dept-name-en {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px; letter-spacing: 2.5px;
-  text-transform: uppercase; opacity: .7;
-}
-.dept-rule {
-  flex: 1; height: 0;
-  border-top: 1px dashed currentColor; opacity: .3;
-}
-.dept-count {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10.5px; letter-spacing: 1.5px;
-  padding: 2px 10px; border-radius: 99px;
-  font-weight: 600; text-transform: uppercase;
-}
+.dept-heading::before { content: '▍'; font-size: 16px; }
+.dept-name { font-family: 'Shippori Mincho', serif; font-weight: 600; font-size: 17px; letter-spacing: .05em; }
+.dept-name-en { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; opacity: .7; }
+.dept-rule { flex: 1; height: 0; border-top: 1px dashed currentColor; opacity: .3; }
+.dept-count { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 1.5px; padding: 2px 10px; border-radius: 99px; font-weight: 600; text-transform: uppercase; }
+
 /* Academic 教務處 — indigo (藍) */
-.dept-academic .dept-heading { background: var(--ai-wash); color: var(--ai); border-left: 4px solid var(--ai); }
-.dept-academic .dept-count   { background: var(--ai); color: white; }
-.dept-academic .event-item   { background: linear-gradient(90deg, rgba(44,79,124,.05) 0%, transparent 40%); border-left: 4px solid var(--ai); }
-.dept-academic .event-item:hover { box-shadow: 4px 4px 0 var(--ai-wash), 0 2px 12px rgba(44,79,124,.15); }
+.dept-c-ai .dept-heading { background: var(--ai-wash); color: var(--ai); border-left: 4px solid var(--ai); }
+.dept-c-ai .dept-count   { background: var(--ai); color: white; }
+.dept-c-ai .event-item   { border-left: 4px solid var(--ai); }
+.dept-c-ai .event-item:hover { box-shadow: 4px 4px 0 var(--ai-wash), 0 2px 12px rgba(44,79,124,.15); }
+.dept-c-ai .ch-item      { border-left: 4px solid var(--ai); }
 
 /* Student affairs 學務處 — sage (綠) */
-.dept-student .dept-heading  { background: var(--midori-wash); color: var(--midori); border-left: 4px solid var(--midori); }
-.dept-student .dept-count    { background: var(--midori); color: white; }
-.dept-student .event-item    { background: linear-gradient(90deg, rgba(74,112,85,.05) 0%, transparent 40%); border-left: 4px solid var(--midori); }
-.dept-student .event-item:hover { box-shadow: 4px 4px 0 var(--midori-wash), 0 2px 12px rgba(74,112,85,.15); }
+.dept-c-midori .dept-heading { background: var(--midori-wash); color: var(--midori); border-left: 4px solid var(--midori); }
+.dept-c-midori .dept-count   { background: var(--midori); color: white; }
+.dept-c-midori .event-item   { border-left: 4px solid var(--midori); }
+.dept-c-midori .event-item:hover { box-shadow: 4px 4px 0 var(--midori-wash), 0 2px 12px rgba(74,112,85,.15); }
+.dept-c-midori .ch-item      { border-left: 4px solid var(--midori); }
 
-/* Counseling 輔導室 — amber (橘) */
-.dept-counsel  .dept-heading { background: var(--kohaku-wash); color: var(--kohaku); border-left: 4px solid var(--kohaku); }
-.dept-counsel  .dept-count   { background: var(--kohaku); color: white; }
-.dept-counsel  .event-item   { background: linear-gradient(90deg, rgba(176,125,46,.06) 0%, transparent 40%); border-left: 4px solid var(--kohaku); }
-.dept-counsel  .event-item:hover { box-shadow: 4px 4px 0 var(--kohaku-wash), 0 2px 12px rgba(176,125,46,.15); }
+/* Guidance 輔導室 — amber (橘) */
+.dept-c-kohaku .dept-heading { background: var(--kohaku-wash); color: var(--kohaku); border-left: 4px solid var(--kohaku); }
+.dept-c-kohaku .dept-count   { background: var(--kohaku); color: white; }
+.dept-c-kohaku .event-item   { border-left: 4px solid var(--kohaku); }
+.dept-c-kohaku .event-item:hover { box-shadow: 4px 4px 0 var(--kohaku-wash), 0 2px 12px rgba(176,125,46,.15); }
+.dept-c-kohaku .ch-item      { border-left: 4px solid var(--kohaku); }
 
-/* Other 其他 — graphite (灰) */
-.dept-other .dept-heading   { background: var(--wa-3); color: var(--sumi-3); border-left: 4px solid var(--sumi-4); }
-.dept-other .dept-count     { background: var(--sumi-4); color: white; }
-.dept-other .event-item     { border-left: 4px solid var(--sumi-4); }
+/* Other 其他 — vermillion */
+.dept-c-shu .dept-heading { background: var(--shu-wash); color: var(--shu); border-left: 4px solid var(--shu); }
+.dept-c-shu .dept-count   { background: var(--shu); color: white; }
+.dept-c-shu .event-item   { border-left: 4px solid var(--shu); }
+.dept-c-shu .ch-item      { border-left: 4px solid var(--shu); }
 
-/* Empty state within a department block */
 .dept-block .empty-mini {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10.5px; letter-spacing: 2px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 2px;
   color: var(--sumi-4); text-transform: uppercase;
   padding: 12px 16px; text-align: center;
   border: 1px dashed var(--sumi-6); background: var(--wa);
 }
 
-/* ══ イベントカード EVENT CARDS — single-line ══ */
+/* Highlights past section heading */
+.ch-past-heading {
+  margin-top: 20px; padding: 8px 14px;
+  background: var(--wa-3); color: var(--sumi-3);
+  border-left: 4px solid var(--sumi-4);
+  font-family: 'Shippori Mincho', serif; font-size: 14px; font-weight: 600;
+  letter-spacing: .05em;
+}
+.ch-past-heading .en { font-family: 'IBM Plex Mono', monospace; font-size: 10px; margin-left: 8px; opacity: .7; text-transform: uppercase; letter-spacing: 2px; }
+
 .event-item {
   display: flex;
   align-items: center;
@@ -1354,8 +1360,14 @@ label .en { color: var(--ai); font-weight: 600; }
       <p>請輸入你的組別／姓名（會記錄在公告與事項上），以及共用通行碼。登入後即可在「週報公告」與「行事曆」新增內容，並修改／刪除自己新增的項目。<span class="en-sub">Enter your coordinator group / name (shown on your posts) and the shared passcode. Once signed in you can post to the Weekly Notice and Calendar, and edit or delete your own items.</span></p>
       <div class="login-fields">
         <div>
-          <label>組別 / 姓名 <span class="en">Coordinator / Name</span></label>
-          <input type="text" id="login-name" placeholder="例 e.g.：體育組 / Hanyun @ PE" autocomplete="off">
+          <label>組別 <span class="en">Coordinator Group</span></label>
+          <select id="login-group">
+            <option value="">— 請選擇 Select —</option>
+          </select>
+        </div>
+        <div>
+          <label>姓名（選填）<span class="en">Your Name (optional)</span></label>
+          <input type="text" id="login-name" placeholder="例 e.g.：Hanyun" autocomplete="off">
         </div>
         <div>
           <label>通行碼 <span class="en">Passcode</span></label>
@@ -1541,37 +1553,67 @@ function saveAuth() {
   try { localStorage.setItem(AUTH_KEY, JSON.stringify(auth)); } catch(_) {}
 }
 function openLogin() {
+  if (typeof populateLoginGroups === 'function') populateLoginGroups();
   document.getElementById('login-modal').classList.add('show');
-  document.getElementById('login-name').value     = auth.name || '';
+  var groupSel = document.getElementById('login-group');
+  if (groupSel && auth.group) groupSel.value = auth.group;
+  document.getElementById('login-name').value = '';
   document.getElementById('login-passcode').value = '';
   document.getElementById('login-error').classList.remove('visible');
   setTimeout(function() {
-    var f = document.getElementById('login-name');
-    if (f.value) document.getElementById('login-passcode').focus();
-    else f.focus();
+    var g = document.getElementById('login-group');
+    if (g && g.value) document.getElementById('login-passcode').focus();
+    else if (g) g.focus();
   }, 100);
 }
 function closeLogin() { document.getElementById('login-modal').classList.remove('show'); }
 
 function doLogin() {
-  var name = document.getElementById('login-name').value.trim();
+  var groupSel = document.getElementById('login-group');
+  var group = groupSel ? groupSel.value : '';
+  var nameField = document.getElementById('login-name').value.trim();
   var pass = document.getElementById('login-passcode').value.trim();
   var err  = document.getElementById('login-error');
-  if (!name) { err.textContent = '請輸入組別／姓名　Please enter your coordinator group / name'; err.classList.add('visible'); return; }
-  if (!pass) { err.textContent = '請輸入通行碼　Please enter the passcode';     err.classList.add('visible'); return; }
+
+  if (!group) { err.textContent = '請選擇組別　Please select a coordinator group'; err.classList.add('visible'); return; }
+  if (!pass)  { err.textContent = '請輸入通行碼　Please enter the passcode';        err.classList.add('visible'); return; }
+
+  var unit = orgUnitByGroup(group);
+  var display = group;
+  if (unit) display = group + '（' + unit.groupEn + '）';
+  if (nameField) display = display + ' · ' + nameField;
+
   if (pass === PASSCODE_ADMIN) {
-    auth = { name: name, role: 'admin' };
+    auth = { name: display, role: 'admin', group: group };
     saveAuth(); closeLogin();
-    showToast('已以管理員身份登入 ✓　Signed in as admin');
-    applyAuth(); render(); return;
+    showToast('已以管理員身份登入 ✓　Signed in as Admin');
+    applyAuth(); prefillDeptFromAuth(); render(); if (typeof renderNotices==='function') renderNotices(); return;
   }
   if (pass === PASSCODE_USER) {
-    auth = { name: name, role: 'user' };
+    auth = { name: display, role: 'user', group: group };
     saveAuth(); closeLogin();
-    showToast('登入成功，歡迎 ' + name + '　Welcome');
-    applyAuth(); render(); return;
+    showToast('登入成功，歡迎 ' + display + '　Welcome');
+    applyAuth(); prefillDeptFromAuth(); render(); if (typeof renderNotices==='function') renderNotices(); return;
   }
   err.textContent = '通行碼錯誤，請重新輸入　Wrong passcode, please try again'; err.classList.add('visible');
+}
+
+function populateLoginGroups() {
+  var sel = document.getElementById('login-group');
+  if (!sel) return;
+  while (sel.options.length > 1) sel.remove(1);
+  DEPT_KEYS.forEach(function(deptKey) {
+    var info = DEPT_INFO[deptKey];
+    var og = document.createElement('optgroup');
+    og.label = info.name + '　' + info.en;
+    ORG_UNITS.filter(function(u){ return u.dept === deptKey; }).forEach(function(u) {
+      var opt = document.createElement('option');
+      opt.value = u.group;
+      opt.textContent = u.group + '　' + u.groupEn;
+      og.appendChild(opt);
+    });
+    sel.appendChild(og);
+  });
 }
 
 function logout() {
@@ -1652,6 +1694,10 @@ document.getElementById('login-passcode').addEventListener('keydown', function(e
 document.getElementById('login-name').addEventListener('keydown', function(ev) {
   if (ev.key === 'Enter') document.getElementById('login-passcode').focus();
 });
+var _lg = document.getElementById('login-group');
+if (_lg) _lg.addEventListener('change', function() {
+  document.getElementById('login-name').focus();
+});
 
 
 // ─── Firebase ───────────────────────────────────────────────────
@@ -1668,41 +1714,80 @@ const db        = firebase.database();
 const eventsRef = db.ref('events');
 
 // ═══════════════════════════════════════════════════════════════
+// ─── Organization units (組別 → 處室) ───────────────────────────
+// Single source of truth for departments and their groups.
+var ORG_UNITS = [
+  // 教務處 Academic Office
+  { group: '教務組', groupEn: 'Academic Director',                 dept: 'academics',      deptZh: '教務處', deptEn: 'Academic Office' },
+  { group: '課務組', groupEn: 'Academics Planning',                dept: 'academics',      deptZh: '教務處', deptEn: 'Academic Office' },
+  { group: '註冊組', groupEn: 'Registrar',                         dept: 'academics',      deptZh: '教務處', deptEn: 'Academic Office' },
+  { group: '設備組', groupEn: 'Teaching Materials and Equipment',  dept: 'academics',      deptZh: '教務處', deptEn: 'Academic Office' },
+  { group: '外事組', groupEn: "Western Teachers' Liaison",         dept: 'academics',      deptZh: '教務處', deptEn: 'Academic Office' },
+  { group: '資訊組', groupEn: 'IT Coordinator',                    dept: 'academics',      deptZh: '教務處', deptEn: 'Academic Office' },
+  { group: '實研組', groupEn: 'Educational R & D',                 dept: 'academics',      deptZh: '教務處', deptEn: 'Academic Office' },
+  // 學務處 Student Affairs Office
+  { group: '學務組', groupEn: 'Student Affairs Director',          dept: 'studentAffairs', deptZh: '學務處', deptEn: 'Student Affairs Office' },
+  { group: '體育組', groupEn: 'P.E. Coordinator',                  dept: 'studentAffairs', deptZh: '學務處', deptEn: 'Student Affairs Office' },
+  { group: '衛生組', groupEn: 'Sanitation Coordinator',            dept: 'studentAffairs', deptZh: '學務處', deptEn: 'Student Affairs Office' },
+  { group: '活動組', groupEn: 'Student Clubs & Activities',        dept: 'studentAffairs', deptZh: '學務處', deptEn: 'Student Affairs Office' },
+  { group: '生輔組', groupEn: 'Disciplinarian',                    dept: 'studentAffairs', deptZh: '學務處', deptEn: 'Student Affairs Office' },
+  // 輔導室 Guidance Counseling Office
+  { group: '輔導組', groupEn: 'Guidance Counseling Director',      dept: 'guidance',       deptZh: '輔導室', deptEn: 'Guidance Counseling Office' },
+  { group: '特教組', groupEn: 'Learning Support Teacher',          dept: 'guidance',       deptZh: '輔導室', deptEn: 'Guidance Counseling Office' }
+];
+
+function classifyDept(nameOrAuthor) {
+  var s = String(nameOrAuthor || '');
+  for (var i = 0; i < ORG_UNITS.length; i++) {
+    var u = ORG_UNITS[i];
+    if (s.indexOf(u.group) !== -1) return u.dept;
+    if (u.groupEn && s.toLowerCase().indexOf(u.groupEn.toLowerCase()) !== -1) return u.dept;
+  }
+  if (/教務處|Academic\s*Office|Academic\s*Affairs/i.test(s)) return 'academics';
+  if (/學務處|Student\s*Affairs/i.test(s))                    return 'studentAffairs';
+  if (/輔導室|輔導處|Guidance|Counsel/i.test(s))                return 'guidance';
+  if (/教務|課務|實研|註冊|設備|資訊|外事|Academic|Registrar|IT|Liaison|R\s*&\s*D/i.test(s)) return 'academics';
+  if (/學務|體育|衛生|活動|生輔|P\.?E|Sanitation|Discipl|Club/i.test(s))                     return 'studentAffairs';
+  if (/輔導|特教|Guidance|Counsel|Learning\s*Support/i.test(s))                              return 'guidance';
+  return 'other';
+}
+
+function orgUnitByGroup(groupName) {
+  for (var i = 0; i < ORG_UNITS.length; i++) {
+    if (ORG_UNITS[i].group === groupName) return ORG_UNITS[i];
+  }
+  return null;
+}
+
+var DEPT_INFO = {
+  academics:      { name: '教務處', en: 'Academic Office',             order: 1, color: 'ai'     },
+  studentAffairs: { name: '學務處', en: 'Student Affairs Office',      order: 2, color: 'midori' },
+  guidance:       { name: '輔導室', en: 'Guidance Counseling Office',  order: 3, color: 'kohaku' },
+  other:          { name: '其他',   en: 'Other',                       order: 4, color: 'shu'    }
+};
+var DEPT_KEYS = ['academics','studentAffairs','guidance'];
+
+var DEPTS = DEPT_KEYS.map(function(k){
+  var info = DEPT_INFO[k];
+  return { key: k, zh: info.name, en: info.en, color: info.color };
+});
+var DEPT_MAP = {}; DEPTS.forEach(function(d){ DEPT_MAP[d.key] = d; });
+var DEPT_ORDER = {}; DEPTS.forEach(function(d,i){ DEPT_ORDER[d.key] = i; });
+
+function normalizeDeptKey(k) {
+  var s = String(k || '');
+  if (s === 'academics' || s === 'studentAffairs' || s === 'guidance') return s;
+  if (s === 'general' || s === 'elementary' || s === 'middleSchool') return 'academics';
+  return classifyDept(s);
+}
+
+
 //  週報公告  WEEKLY NOTICE  —  module
 // ═══════════════════════════════════════════════════════════════
 const noticesRef = db.ref('notices');
 
 // Departments (處室) — fixed display order + accent color
-var DEPTS = [
-  { key: 'academics',      zh: '教務處',   en: 'Academic Affairs',   color: 'ai'     },
-  { key: 'studentAffairs', zh: '學務處',   en: 'Student Affairs',    color: 'midori' },
-  { key: 'guidance',       zh: '輔導室',   en: 'Counseling Office',  color: 'kohaku' }
-];
-var DEPT_MAP = {}; DEPTS.forEach(function(d){ DEPT_MAP[d.key] = d; });
-var DEPT_ORDER = {}; DEPTS.forEach(function(d,i){ DEPT_ORDER[d.key] = i; });
 
-// Backward-compat: map legacy dept keys to current 3-department set
-function normalizeDeptKey(k) {
-  var s = String(k || '');
-  // Direct matches to current 3-dept keys
-  if (s === 'academics' || s === 'studentAffairs' || s === 'guidance') return s;
-  // Legacy keys (from 6-dept version) → collapse into academics
-  if (s === 'general' || s === 'elementary' || s === 'middleSchool') return 'academics';
-  // Chinese label fallbacks (in case dept was stored as label rather than key)
-  if (/學務|體育|衛生|活動|生輔/.test(s)) return 'studentAffairs';
-  if (/輔導|特教|Guidance|Counsel/i.test(s)) return 'guidance';
-  if (/教務|課務|實研|註冊|設備|資訊|Academic|國小|國中|一般|General/i.test(s)) return 'academics';
-  // Anything else defaults to academics so it still shows up
-  return 'academics';
-}
-
-
-// Common posters per department (datalist suggestions, editable)
-var POSTERS = {
-  academics:      ['Casey @ Director of Academics','Crystal @ Academic Planning','Savannah @ Registrar','Peggy @ Equipment & Material','Fanyu @ E R&D','Eduard @ Western Teacher Liaison','Matthew @ IT'],
-  studentAffairs: ['Ricky @ Director of Student Affairs','Kevin @ Disciplinarian','Yaxin @ Activity','Lucy @ Sanitation','Hanyun @ PE'],
-  guidance:       ['Joyce @ Guidance','Maggie @ Counselor']
-};
 
 // ── notice state ──
 var allNotices       = [];
@@ -1759,13 +1844,28 @@ function switchMode(mode) {
 
 // ── department change → refresh poster suggestions ──
 function onDeptChange() {
-  var dept = document.getElementById('ni-dept').value;
+  // POSTERS was removed; datalist stays empty (poster is now free-text with auth.name default)
   var dl = document.getElementById('poster-list');
-  dl.innerHTML = '';
-  (POSTERS[dept] || []).forEach(function(p) {
-    var o = document.createElement('option'); o.value = p; dl.appendChild(o);
-  });
+  if (dl) dl.innerHTML = '';
 }
+
+// Auto-set the notice-form dept dropdown based on the logged-in user's group
+function prefillDeptFromAuth() {
+  if (!auth.group) return;
+  var unit = orgUnitByGroup(auth.group);
+  if (!unit) return;
+  var sel = document.getElementById('ni-dept');
+  if (sel && !noticeEditingKey) {  // don't overwrite if editing an existing notice
+    sel.value = unit.dept;
+    onDeptChange();
+  }
+  // Also prefill the "poster" field (負責人) with the group + English label
+  var poster = document.getElementById('ni-poster');
+  if (poster && !poster.value && !noticeEditingKey) {
+    poster.value = auth.group + '（' + unit.groupEn + '）';
+  }
+}
+
 
 // ── realtime listener ──
 noticesRef.on('value', function(snap) {
@@ -1827,7 +1927,7 @@ function startNoticeEdit(key) {
   if (!canModify(n)) { showToast(auth.role === 'guest' ? '請先登入才能修改　Sign in to edit' : '只能修改自己發布的公告　You can only edit your own posts'); return; }
   noticeEditingKey = key;
   document.getElementById('ni-week').value = n.weekDate || taiwanToday();
-  document.getElementById('ni-dept').value = n.dept || 'general';
+  document.getElementById('ni-dept').value = normalizeDeptKey(n.dept) || 'academics';
   onDeptChange();
   document.getElementById('ni-poster').value = n.poster || '';
   document.getElementById('ni-text').value   = n.content || '';
@@ -1950,12 +2050,9 @@ function renderNotices() {
     html += '</div>';
 
     html += '<div class="nw-body">';
-    // group by dept in fixed order (with legacy-key normalization)
+    // group by dept in fixed order
     var byDept = {};
-    items.forEach(function(n){
-      var k = normalizeDeptKey(n.dept);
-      (byDept[k] = byDept[k] || []).push(n);
-    });
+    items.forEach(function(n){ (byDept[n.dept] = byDept[n.dept] || []).push(n); });
     DEPTS.forEach(function(d) {
       var di = byDept[d.key];
       if (!di || !di.length) return;
@@ -1965,6 +2062,13 @@ function renderNotices() {
       html += '<div class="dept-head"><span class="dept-bar"></span>';
       html += '<span class="dept-zh">' + d.zh + '</span><span class="dept-en">' + d.en + '</span></div>';
       di.forEach(function(n){ html += renderNoticeItem(n); });
+      html += '</div>';
+    });
+    // any unknown dept (defensive)
+    Object.keys(byDept).forEach(function(k){
+      if (DEPT_MAP[k]) return;
+      html += '<div class="dept-group dept-c-shu"><div class="dept-head"><span class="dept-bar"></span><span class="dept-zh">' + esc(k) + '</span></div>';
+      byDept[k].forEach(function(n){ html += renderNoticeItem(n); });
       html += '</div>';
     });
     html += '</div></div>';
@@ -2032,6 +2136,7 @@ var upcomFilterMonth = '';
 // ─── Realtime listener ───────────────────────────────────────────
 // Initialize auth UI on page load
 applyAuth();
+if (typeof prefillDeptFromAuth === 'function') prefillDeptFromAuth();
 
 eventsRef.on('value', function(snap) {
   var raw = snap.val() || {};
@@ -2484,7 +2589,31 @@ function render() {
   if (!displayUpcom.length) {
     html += '<div class="empty-state" style="padding:20px 0"><div class="state-text">此區間無事項　No items in this range</div></div>';
   } else {
-    displayUpcom.forEach(function(e) { html += renderItem(e, false, isSearching); });
+    // Group by department (based on author name → classifyDept)
+    var buckets = { academics: [], studentAffairs: [], guidance: [], other: [] };
+    displayUpcom.forEach(function(e) {
+      var d = classifyDept(e.author);
+      buckets[d].push(e);
+    });
+    var deptOrder = ['academics','studentAffairs','guidance','other'];
+    deptOrder.forEach(function(dept) {
+      var items = buckets[dept];
+      if (dept === 'other' && !items.length) return;
+      var info = DEPT_INFO[dept];
+      html += '<div class="dept-block dept-c-' + info.color + '">';
+      html += '<div class="dept-heading">' +
+              '<span class="dept-name">' + info.name + '</span>' +
+              '<span class="dept-name-en">' + info.en + '</span>' +
+              '<div class="dept-rule"></div>' +
+              '<span class="dept-count">' + items.length + ' 項</span>' +
+              '</div>';
+      if (!items.length) {
+        html += '<div class="empty-mini">目前無事項　No items</div>';
+      } else {
+        items.forEach(function(e) { html += renderItem(e, false, isSearching); });
+      }
+      html += '</div>';
+    });
   }
 
   // ── Previous ──
@@ -2556,29 +2685,6 @@ function render() {
 
   listEl.innerHTML = html;
 }
-
-
-// ─── Department classification ──────────────────────────────────
-// Keyword-based routing. Match against author name.
-// Returns one of: 'academic', 'student', 'counsel', 'other'
-function classifyDept(author) {
-  var s = String(author || '');
-  // 教務處：教務、課務、實研、註冊、設備、資訊
-  if (/教務|課務|實研|註冊|設備|資訊/.test(s)) return 'academic';
-  // 學務處：學務、體育、衛生、活動、生輔
-  if (/學務|體育|衛生|活動|生輔/.test(s)) return 'student';
-  // 輔導室：輔導、特教
-  if (/輔導|特教/.test(s)) return 'counsel';
-  return 'other';
-}
-
-var DEPT_INFO = {
-  academic: { name: '教務處', en: 'Academic Affairs',   order: 1 },
-  student:  { name: '學務處', en: 'Student Affairs',    order: 2 },
-  counsel:  { name: '輔導室', en: 'Counseling Office',  order: 3 },
-  other:    { name: '其他',   en: 'Other',              order: 4 }
-};
-
 
 // ─── Render single item ──────────────────────────────────────────
 function renderItem(e, isPast, isSearching) {
@@ -2749,18 +2855,8 @@ function renderCalendarHighlights() {
     return p[1] + '/' + p[2] + '（週' + WD[i] + ' ' + WE[i] + '）';
   }
 
-  var h = '<div class="cal-highlights">';
-  h += '<div class="cal-highlights-head">';
-  h += '<span class="ch-title">📅 行事曆精選</span>';
-  h += '<span class="ch-en">From Calendar</span>';
-  h += '<span class="ch-count">共 ' + flagged.length + ' 項 items' + (gradeFilter ? '（已篩選 filtered）' : '') + '</span>';
-  h += '</div><div class="ch-body">';
-
-  if (!flagged.length) {
-    h += '<div class="ch-item"><span class="ch-content" style="color:var(--sumi-4)">此年段目前沒有選入的行事曆事項　No calendar items selected for this grade band</span></div>';
-  }
-
-  flagged.forEach(function(e) {
+  // Render one highlight item
+  function renderHighlightItem(e) {
     var isMulti = !!e.groupId;
     var dateLabel;
     if (isMulti && e.dateStart && e.dateEnd && e.dateStart !== e.dateEnd) {
@@ -2775,39 +2871,88 @@ function renderCalendarHighlights() {
     var canMod = canModify(e);
     var editing = (e.fbKey === chEditingKey);
 
-    h += '<div class="ch-item-wrap">';
-    h += '<div class="ch-item' + (past ? ' is-past' : '') + '">';
-    h += '<span class="ch-date">' + dateLabel + '</span>';
-    if (timeStr) { h += '<span class="ch-dash">·</span><span class="ch-time">' + timeStr + '</span>'; }
-    h += '<span class="ch-dash">—</span><span class="ch-content">' + esc(clean) + '</span>';
-    h += ' ' + gradeBadges(e);
-    if (e.location) h += '<span class="ch-dash">·</span><span class="ch-loc">◎ ' + esc(e.location) + '</span>';
-    if (e.author)   h += '<span class="ch-dash">·</span><span class="ch-author">✎ ' + esc(e.author) + '</span>';
-    if (canMod && !editing) h += '<button class="ch-edit-btn" onclick="startHighlightEdit(\'' + e.fbKey + '\')">✎ 編輯 Edit</button>';
-    h += '</div>';
+    var s = '<div class="ch-item-wrap">';
+    s += '<div class="ch-item' + (past ? ' is-past' : '') + '">';
+    s += '<span class="ch-date">' + dateLabel + '</span>';
+    if (timeStr) { s += '<span class="ch-dash">·</span><span class="ch-time">' + timeStr + '</span>'; }
+    s += '<span class="ch-dash">—</span><span class="ch-content">' + esc(clean) + '</span>';
+    s += ' ' + gradeBadges(e);
+    if (e.location) s += '<span class="ch-dash">·</span><span class="ch-loc">◎ ' + esc(e.location) + '</span>';
+    if (e.author)   s += '<span class="ch-dash">·</span><span class="ch-author">✎ ' + esc(e.author) + '</span>';
+    if (canMod && !editing) s += '<button class="ch-edit-btn" onclick="startHighlightEdit(\'' + e.fbKey + '\')">✎ 編輯 Edit</button>';
+    s += '</div>';
 
-    // 公告補充說明（顯示給所有人）
-    if (e.noticeNote && !editing) h += '<div class="ch-note">' + linkify(e.noticeNote) + '</div>';
+    if (e.noticeNote && !editing) s += '<div class="ch-note">' + linkify(e.noticeNote) + '</div>';
 
-    // 就地編輯器
     if (editing) {
-      h += '<div class="ch-editor">';
-      h += '<div class="che-row"><label>內容 Content</label>'
+      s += '<div class="ch-editor">';
+      s += '<div class="che-row"><label>內容 Content</label>'
          + '<input type="text" id="che-content" value="' + esc(clean) + '"></div>';
-      h += '<div class="che-row"><label>地點 Location（選填 optional）</label>'
+      s += '<div class="che-row"><label>地點 Location（選填 optional）</label>'
          + '<input type="text" id="che-location" value="' + esc(e.location || '') + '"></div>';
-      h += '<div class="che-row"><label>公告補充說明 Notice Details</label>'
-         + '<textarea id="che-note" placeholder="補充給老師的細節、提醒或連結…可貼上 Google 文件／表單網址，會自動變成連結。&#10;Extra details, reminders or links for teachers…">' + esc(e.noticeNote || '') + '</textarea>'
+      s += '<div class="che-row"><label>公告補充說明 Notice Details</label>'
+         + '<textarea id="che-note" placeholder="補充給老師的細節、提醒或連結…&#10;Extra details for teachers…">' + esc(e.noticeNote || '') + '</textarea>'
          + '<div class="che-hint">↵ 換行分段 · 網址自動變連結　Line breaks split paragraphs · URLs auto-link</div></div>';
-      h += '<div class="che-actions">'
+      s += '<div class="che-actions">'
          + '<button class="che-save" onclick="saveHighlightEdit(\'' + e.fbKey + '\')">儲存 Save</button>'
          + '<button class="che-cancel" onclick="cancelHighlightEdit()">取消 Cancel</button></div>';
-      h += '<div class="che-hint" style="margin-top:8px">※ 內容與地點會同步更新到工作行事曆　Content & location also update the Work Calendar</div>';
-      h += '</div>';
+      s += '<div class="che-hint" style="margin-top:8px">※ 內容與地點會同步更新到工作行事曆　Content & location also update the Work Calendar</div>';
+      s += '</div>';
     }
+    s += '</div>';
+    return s;
+  }
 
-    h += '</div>'; // /ch-item-wrap
+  // Split into upcoming vs past
+  var upcomingItems = [];
+  var pastItems = [];
+  flagged.forEach(function(e) {
+    var lastDay = (e.groupId && e.dateEnd) ? e.dateEnd : e.date;
+    if (lastDay < today) pastItems.push(e);
+    else upcomingItems.push(e);
   });
+
+  // Group upcoming by department
+  var byDept = { academics: [], studentAffairs: [], guidance: [], other: [] };
+  upcomingItems.forEach(function(e) {
+    byDept[classifyDept(e.author)].push(e);
+  });
+
+  var h = '<div class="cal-highlights">';
+  h += '<div class="cal-highlights-head">';
+  h += '<span class="ch-title">📅 行事曆精選</span>';
+  h += '<span class="ch-en">From Calendar</span>';
+  h += '<span class="ch-count">共 ' + flagged.length + ' 項 items' + (gradeFilter ? '（已篩選 filtered）' : '') + '</span>';
+  h += '</div><div class="ch-body">';
+
+  if (!flagged.length) {
+    h += '<div class="ch-item"><span class="ch-content" style="color:var(--sumi-4)">此年段目前沒有選入的行事曆事項　No calendar items selected for this grade band</span></div>';
+  } else {
+    var deptOrder = ['academics','studentAffairs','guidance','other'];
+    var anyUpcoming = false;
+    deptOrder.forEach(function(dept) {
+      var items = byDept[dept];
+      if (!items.length) return;
+      anyUpcoming = true;
+      var info = DEPT_INFO[dept];
+      h += '<div class="dept-block dept-c-' + info.color + '">';
+      h += '<div class="dept-heading">' +
+           '<span class="dept-name">' + info.name + '</span>' +
+           '<span class="dept-name-en">' + info.en + '</span>' +
+           '<div class="dept-rule"></div>' +
+           '<span class="dept-count">' + items.length + ' 項</span>' +
+           '</div>';
+      items.forEach(function(e){ h += renderHighlightItem(e); });
+      h += '</div>';
+    });
+    if (!anyUpcoming) {
+      h += '<div class="ch-item"><span class="ch-content" style="color:var(--sumi-4)">近期無精選事項　No upcoming highlights</span></div>';
+    }
+    if (pastItems.length) {
+      h += '<div class="ch-past-heading">▍ Previous 已過去 <span class="en">' + pastItems.length + ' items</span></div>';
+      pastItems.forEach(function(e) { h += renderHighlightItem(e); });
+    }
+  }
 
   h += '</div></div>';
   box.innerHTML = h;
