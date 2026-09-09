@@ -1674,24 +1674,26 @@ const noticesRef = db.ref('notices');
 
 // Departments (處室) — fixed display order + accent color
 var DEPTS = [
-  { key: 'general',        zh: '一般公告', en: 'General Notices',  color: 'shu'    },
-  { key: 'academics',      zh: '教務處',   en: 'Academics',        color: 'ai'     },
-  { key: 'studentAffairs', zh: '學務處',   en: 'Student Affairs',  color: 'midori' },
-  { key: 'guidance',       zh: '輔導處',   en: 'Guidance',         color: 'kohaku' },
-  { key: 'elementary',     zh: '國小部',   en: 'Elementary',       color: 'ai'     },
-  { key: 'middleSchool',   zh: '國中部',   en: 'Middle School',    color: 'midori' }
+  { key: 'academics',      zh: '教務處',   en: 'Academic Affairs',   color: 'ai'     },
+  { key: 'studentAffairs', zh: '學務處',   en: 'Student Affairs',    color: 'midori' },
+  { key: 'guidance',       zh: '輔導室',   en: 'Counseling Office',  color: 'kohaku' }
 ];
 var DEPT_MAP = {}; DEPTS.forEach(function(d){ DEPT_MAP[d.key] = d; });
 var DEPT_ORDER = {}; DEPTS.forEach(function(d,i){ DEPT_ORDER[d.key] = i; });
 
+// Backward-compat: map legacy dept keys to current 3-department set
+function normalizeDeptKey(k) {
+  if (k === 'general' || k === 'elementary' || k === 'middleSchool') return 'academics';
+  if (!k) return 'academics';
+  return k;
+}
+
+
 // Common posters per department (datalist suggestions, editable)
 var POSTERS = {
-  general:        [],
   academics:      ['Casey @ Director of Academics','Crystal @ Academic Planning','Savannah @ Registrar','Peggy @ Equipment & Material','Fanyu @ E R&D','Eduard @ Western Teacher Liaison','Matthew @ IT'],
   studentAffairs: ['Ricky @ Director of Student Affairs','Kevin @ Disciplinarian','Yaxin @ Activity','Lucy @ Sanitation','Hanyun @ PE'],
-  guidance:       ['Joyce @ Guidance','Maggie @ Counselor'],
-  elementary:     ['Erica @ Elementary'],
-  middleSchool:   ['House / MS Events']
+  guidance:       ['Joyce @ Guidance','Maggie @ Counselor']
 };
 
 // ── notice state ──
@@ -1940,9 +1942,12 @@ function renderNotices() {
     html += '</div>';
 
     html += '<div class="nw-body">';
-    // group by dept in fixed order
+    // group by dept in fixed order (with legacy-key normalization)
     var byDept = {};
-    items.forEach(function(n){ (byDept[n.dept] = byDept[n.dept] || []).push(n); });
+    items.forEach(function(n){
+      var k = normalizeDeptKey(n.dept);
+      (byDept[k] = byDept[k] || []).push(n);
+    });
     DEPTS.forEach(function(d) {
       var di = byDept[d.key];
       if (!di || !di.length) return;
@@ -1952,13 +1957,6 @@ function renderNotices() {
       html += '<div class="dept-head"><span class="dept-bar"></span>';
       html += '<span class="dept-zh">' + d.zh + '</span><span class="dept-en">' + d.en + '</span></div>';
       di.forEach(function(n){ html += renderNoticeItem(n); });
-      html += '</div>';
-    });
-    // any unknown dept (defensive)
-    Object.keys(byDept).forEach(function(k){
-      if (DEPT_MAP[k]) return;
-      html += '<div class="dept-group dept-c-shu"><div class="dept-head"><span class="dept-bar"></span><span class="dept-zh">' + esc(k) + '</span></div>';
-      byDept[k].forEach(function(n){ html += renderNoticeItem(n); });
       html += '</div>';
     });
     html += '</div></div>';
@@ -2478,33 +2476,7 @@ function render() {
   if (!displayUpcom.length) {
     html += '<div class="empty-state" style="padding:20px 0"><div class="state-text">此區間無事項　No items in this range</div></div>';
   } else {
-    // Group by department (based on author name keyword)
-    var buckets = { academic: [], student: [], counsel: [], other: [] };
-    displayUpcom.forEach(function(e) {
-      var d = classifyDept(e.author);
-      buckets[d].push(e);
-    });
-
-    // Render in fixed order: 教務 → 學務 → 輔導 → 其他
-    var deptOrder = ['academic','student','counsel','other'];
-    deptOrder.forEach(function(dept) {
-      var items = buckets[dept];
-      if (dept === 'other' && !items.length) return;   // hide 'other' when empty
-      var info = DEPT_INFO[dept];
-      html += '<div class="dept-block dept-' + dept + '">';
-      html += '<div class="dept-heading">' +
-              '<span class="dept-name">' + info.name + '</span>' +
-              '<span class="dept-name-en">' + info.en + '</span>' +
-              '<div class="dept-rule"></div>' +
-              '<span class="dept-count">' + items.length + ' 項</span>' +
-              '</div>';
-      if (!items.length) {
-        html += '<div class="empty-mini">目前無公告事項　No announcements</div>';
-      } else {
-        items.forEach(function(e) { html += renderItem(e, false, isSearching); });
-      }
-      html += '</div>';
-    });
+    displayUpcom.forEach(function(e) { html += renderItem(e, false, isSearching); });
   }
 
   // ── Previous ──
