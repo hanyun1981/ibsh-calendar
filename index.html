@@ -574,11 +574,40 @@ input::placeholder { color: var(--sumi-5); font-weight: 300; font-style: italic;
 /* ══ イベントカード EVENT CARDS — single-line ══ */
 
 /* ── 處室分區 Department sections ── */
-.dept-block { margin-bottom: 20px; }
+.dept-block {
+  margin: 18px 0;
+  padding: 6px 20px 14px 20px;
+  border: 2px solid var(--sumi-5);
+  border-radius: 6px;
+  background: var(--wa);
+  box-shadow: 3px 3px 0 var(--wa-shadow);
+  position: relative;
+}
+.dept-block.dept-c-ai      { border-color: var(--ai);      background: var(--ai-wash); }
+.dept-block.dept-c-midori  { border-color: var(--midori);  background: var(--midori-wash); }
+.dept-block.dept-c-kohaku  { border-color: var(--kohaku);  background: var(--kohaku-wash); }
+.dept-block.dept-c-shu     { border-color: var(--shu);     background: var(--shu-wash); }
+
+/* Event items inside a dept-block: transparent so the block color shows through */
+.dept-block .event-item {
+  background: transparent !important;
+  border-color: rgba(0,0,0,.15);
+}
+.dept-block .event-item:hover {
+  background: rgba(255,255,255,.5) !important;
+}
+
+/* Highlights items inside a dept-block */
+.dept-block .ch-item-wrap { background: transparent; }
+.dept-block .ch-item      { background: transparent; }
+
 .dept-heading {
   display: flex; align-items: center; gap: 12px;
-  padding: 10px 14px; margin-bottom: 8px;
+  padding: 8px 14px 10px 4px; margin-bottom: 10px;
   border-radius: 2px;
+  border-bottom: 1px dashed rgba(0,0,0,.2);
+  background: transparent !important;
+  border-left: none !important;
 }
 .dept-heading::before { content: '▍'; font-size: 16px; }
 .dept-name { font-family: 'Shippori Mincho', serif; font-weight: 600; font-size: 17px; letter-spacing: .05em; }
@@ -587,28 +616,28 @@ input::placeholder { color: var(--sumi-5); font-weight: 300; font-style: italic;
 .dept-count { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 1.5px; padding: 2px 10px; border-radius: 99px; font-weight: 600; text-transform: uppercase; }
 
 /* Academic 教務處 — indigo (藍) */
-.dept-c-ai .dept-heading { background: var(--ai-wash); color: var(--ai); border-left: 4px solid var(--ai); }
+.dept-c-ai .dept-heading { color: var(--ai); }
 .dept-c-ai .dept-count   { background: var(--ai); color: white; }
 .dept-c-ai .event-item   { border-left: 4px solid var(--ai); }
 .dept-c-ai .event-item:hover { box-shadow: 4px 4px 0 var(--ai-wash), 0 2px 12px rgba(44,79,124,.15); }
 .dept-c-ai .ch-item      { border-left: 4px solid var(--ai); }
 
 /* Student affairs 學務處 — sage (綠) */
-.dept-c-midori .dept-heading { background: var(--midori-wash); color: var(--midori); border-left: 4px solid var(--midori); }
+.dept-c-midori .dept-heading { color: var(--midori); }
 .dept-c-midori .dept-count   { background: var(--midori); color: white; }
 .dept-c-midori .event-item   { border-left: 4px solid var(--midori); }
 .dept-c-midori .event-item:hover { box-shadow: 4px 4px 0 var(--midori-wash), 0 2px 12px rgba(74,112,85,.15); }
 .dept-c-midori .ch-item      { border-left: 4px solid var(--midori); }
 
 /* Guidance 輔導室 — amber (橘) */
-.dept-c-kohaku .dept-heading { background: var(--kohaku-wash); color: var(--kohaku); border-left: 4px solid var(--kohaku); }
+.dept-c-kohaku .dept-heading { color: var(--kohaku); }
 .dept-c-kohaku .dept-count   { background: var(--kohaku); color: white; }
 .dept-c-kohaku .event-item   { border-left: 4px solid var(--kohaku); }
 .dept-c-kohaku .event-item:hover { box-shadow: 4px 4px 0 var(--kohaku-wash), 0 2px 12px rgba(176,125,46,.15); }
 .dept-c-kohaku .ch-item      { border-left: 4px solid var(--kohaku); }
 
 /* Other 其他 — vermillion */
-.dept-c-shu .dept-heading { background: var(--shu-wash); color: var(--shu); border-left: 4px solid var(--shu); }
+.dept-c-shu .dept-heading { color: var(--shu); }
 .dept-c-shu .dept-count   { background: var(--shu); color: white; }
 .dept-c-shu .event-item   { border-left: 4px solid var(--shu); }
 .dept-c-shu .ch-item      { border-left: 4px solid var(--shu); }
@@ -1014,11 +1043,23 @@ textarea.notice-input:focus { border-color: var(--shu); box-shadow: 0 0 0 2px rg
 }
 .dept-group:first-child { margin-top: 18px; }
 
-/* Department-tinted frames */
-.nw-body .dept-c-ai      { border-color: var(--ai);      background: linear-gradient(180deg, var(--ai-wash) 0%, var(--wa) 60px); }
-.nw-body .dept-c-midori  { border-color: var(--midori);  background: linear-gradient(180deg, var(--midori-wash) 0%, var(--wa) 60px); }
-.nw-body .dept-c-kohaku  { border-color: var(--kohaku);  background: linear-gradient(180deg, var(--kohaku-wash) 0%, var(--wa) 60px); }
-.nw-body .dept-c-shu     { border-color: var(--shu);     background: linear-gradient(180deg, var(--shu-wash) 0%, var(--wa) 60px); }
+/* Department-tinted BLOCKS — whole card body carries the dept color */
+.nw-body .dept-c-ai      { border-color: var(--ai);      background: var(--ai-wash); }
+.nw-body .dept-c-midori  { border-color: var(--midori);  background: var(--midori-wash); }
+.nw-body .dept-c-kohaku  { border-color: var(--kohaku);  background: var(--kohaku-wash); }
+.nw-body .dept-c-shu     { border-color: var(--shu);     background: var(--shu-wash); }
+
+/* Notice items inside a dept block: transparent so the block color shows through */
+.nw-body .dept-group .notice-item {
+  background: transparent;
+  border-top-color: rgba(0,0,0,.08);
+}
+.nw-body .dept-group .notice-item:first-of-type {
+  border-top: none;
+}
+.nw-body .dept-group .dept-head {
+  border-bottom-color: rgba(0,0,0,.15);
+}
 
 /* Department label chip at top-left of the frame */
 .nw-body .dept-group::before {
