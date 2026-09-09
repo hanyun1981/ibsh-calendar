@@ -1788,27 +1788,31 @@ function applyAuth() {
     icon.className = 'auth-icon guest'; icon.textContent = '客';
     text.innerHTML = '瀏覽模式 Browsing <span class="role-tag guest">GUEST</span>';
     btnIn.style.display = 'inline-block'; btnOut.style.display = 'none';
-    hint.classList.add('visible'); card.classList.add('locked');
+    hint.classList.add('visible');
+    // Fully hide both form cards for guests
+    card.style.display  = 'none';
+    if (nCard) nCard.style.display = 'none';
     aField.style.display = 'none'; aInput.value = '';
-    if (nCard) nCard.classList.add('locked');
     if (nAField) nAField.style.display = 'none';
     if (nAInput) nAInput.value = '';
   } else if (auth.role === 'admin') {
     icon.className = 'auth-icon admin'; icon.textContent = '管';
     text.innerHTML = '<strong>' + esc(auth.name) + '</strong> <span class="role-tag admin">管理員 Admin</span>';
     btnIn.style.display = 'none'; btnOut.style.display = 'inline-block';
-    hint.classList.remove('visible'); card.classList.remove('locked');
+    hint.classList.remove('visible');
+    card.style.display = ''; card.classList.remove('locked');
     aField.style.display = 'flex'; aInput.value = auth.name;
-    if (nCard) nCard.classList.remove('locked');
+    if (nCard) { nCard.style.display = ''; nCard.classList.remove('locked'); }
     if (nAField) nAField.style.display = 'flex';
     if (nAInput) nAInput.value = auth.name;
   } else {
     icon.className = 'auth-icon user'; icon.textContent = '記';
     text.innerHTML = '<strong>' + esc(auth.name) + '</strong> <span class="role-tag user">登記者 Contributor</span>';
     btnIn.style.display = 'none'; btnOut.style.display = 'inline-block';
-    hint.classList.remove('visible'); card.classList.remove('locked');
+    hint.classList.remove('visible');
+    card.style.display = ''; card.classList.remove('locked');
     aField.style.display = 'flex'; aInput.value = auth.name;
-    if (nCard) nCard.classList.remove('locked');
+    if (nCard) { nCard.style.display = ''; nCard.classList.remove('locked'); }
     if (nAField) nAField.style.display = 'flex';
     if (nAInput) nAInput.value = auth.name;
   }
@@ -2184,14 +2188,16 @@ function renderNotices() {
     var w = n.weekDate || '0000-00-00';
     (byWeek[w] = byWeek[w] || []).push(n);
   });
-  var weeks = Object.keys(byWeek).sort().reverse();   // newest first
-
-  // Split weeks into current/upcoming vs past based on today's date
   var today = taiwanToday();
-  // A week is considered "past" if its weekDate is BEFORE today (strict).
-  // Weeks whose date is today or in the future stay in the main list.
-  var currentWeeks = weeks.filter(function(w){ return w >= today; });
-  var pastWeeks    = weeks.filter(function(w){ return w <  today; });
+  // Sort ALL weeks ascending, then split.
+  // currentWeeks (today & future): earliest → latest (closest date shown on top)
+  // pastWeeks (before today):      latest → earliest (most recent past on top)
+  var weeksAsc = Object.keys(byWeek).sort();
+  var currentWeeks = weeksAsc.filter(function(w){ return w >= today; });
+  var pastWeeks    = weeksAsc.filter(function(w){ return w <  today; }).reverse();
+
+  // Legacy alias for downstream code that still references 'weeks'
+  var weeks = weeksAsc.slice().reverse();
 
   // collapse defaults: newest current-week open, all others (current older + past) collapsed
   if (currentWeeks.length) {
