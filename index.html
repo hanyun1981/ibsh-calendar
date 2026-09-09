@@ -2227,7 +2227,7 @@ function renderNotices() {
     DEPTS.forEach(function(d) {
       var di = byDept[d.key];
       if (!di || !di.length) return;
-      di.sort(function(a,b){ return (a.createdAt||0) - (b.createdAt||0); });
+      di.sort(function(a,b){ return (b.createdAt||0) - (a.createdAt||0); });
       s += '<div class="dept-group dept-c-' + d.color + '" data-dept-tag="' + d.zh + '">';
       s += '<div class="dept-head"><span class="dept-bar"></span>';
       s += '<span class="dept-zh">' + d.zh + '</span><span class="dept-en">' + d.en + '</span></div>';
