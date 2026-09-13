@@ -46,6 +46,8 @@
   /* 橙 Amber */
   --kohaku:      #b07d2e;   /* 琥珀 amber */
   --kohaku-wash: #f5eedf;   /* 琥珀暈 */
+  --murasaki:      #6b4a8a;   /* 紫 purple - 雙語部主任 */
+  --murasaki-wash: #ede5f2;   /* 紫暈 */
 
   --ease: cubic-bezier(.25,.46,.45,.94);
   --ease-out: cubic-bezier(.16,1,.3,1);
@@ -583,6 +585,7 @@ input::placeholder { color: var(--sumi-5); font-weight: 300; font-style: italic;
   box-shadow: 3px 3px 0 var(--wa-shadow);
   position: relative;
 }
+.dept-block.dept-c-murasaki { border-color: var(--murasaki); background: var(--murasaki-wash); }
 .dept-block.dept-c-ai      { border-color: var(--ai);      background: var(--ai-wash); }
 .dept-block.dept-c-midori  { border-color: var(--midori);  background: var(--midori-wash); }
 .dept-block.dept-c-kohaku  { border-color: var(--kohaku);  background: var(--kohaku-wash); }
@@ -616,8 +619,13 @@ input::placeholder { color: var(--sumi-5); font-weight: 300; font-style: italic;
 .dept-count { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 1.5px; padding: 2px 10px; border-radius: 99px; font-weight: 600; text-transform: uppercase; }
 
 /* Academic 教務處 — indigo (藍) */
+.dept-c-murasaki .dept-heading { color: var(--murasaki); }
 .dept-c-ai .dept-heading { color: var(--ai); }
 .dept-c-ai .dept-count   { background: var(--ai); color: white; }
+.dept-c-murasaki .event-item { border-left: 4px solid var(--murasaki); }
+.dept-c-murasaki .event-item:hover { box-shadow: 4px 4px 0 var(--murasaki-wash), 0 2px 12px rgba(107,74,138,.15); }
+.dept-c-murasaki .ch-item    { border-left: 4px solid var(--murasaki); }
+
 .dept-c-ai .event-item   { border-left: 4px solid var(--ai); }
 .dept-c-ai .event-item:hover { box-shadow: 4px 4px 0 var(--ai-wash), 0 2px 12px rgba(44,79,124,.15); }
 .dept-c-ai .ch-item      { border-left: 4px solid var(--ai); }
@@ -1044,6 +1052,7 @@ textarea.notice-input:focus { border-color: var(--shu); box-shadow: 0 0 0 2px rg
 .dept-group:first-child { margin-top: 18px; }
 
 /* Department-tinted BLOCKS — whole card body carries the dept color */
+.nw-body .dept-c-murasaki { border-color: var(--murasaki); background: var(--murasaki-wash); }
 .nw-body .dept-c-ai      { border-color: var(--ai);      background: var(--ai-wash); }
 .nw-body .dept-c-midori  { border-color: var(--midori);  background: var(--midori-wash); }
 .nw-body .dept-c-kohaku  { border-color: var(--kohaku);  background: var(--kohaku-wash); }
@@ -1076,6 +1085,7 @@ textarea.notice-input:focus { border-color: var(--shu); box-shadow: 0 0 0 2px rg
   text-transform: uppercase;
   white-space: nowrap;
 }
+.nw-body .dept-c-murasaki::before { color: var(--murasaki); background: var(--wa); }
 .nw-body .dept-c-ai::before      { color: var(--ai);     background: var(--wa); }
 .nw-body .dept-c-midori::before  { color: var(--midori); background: var(--wa); }
 .nw-body .dept-c-kohaku::before  { color: var(--kohaku); background: var(--wa); }
@@ -1132,6 +1142,7 @@ textarea.notice-input:focus { border-color: var(--shu); box-shadow: 0 0 0 2px rg
   color: var(--sumi-3);
   text-transform: uppercase; opacity: .75;
 }
+.nw-body .dept-c-murasaki .dept-head .dept-zh { color: var(--murasaki); }
 .nw-body .dept-c-ai      .dept-head .dept-zh { color: var(--ai); }
 .nw-body .dept-c-midori  .dept-head .dept-zh { color: var(--midori); }
 .nw-body .dept-c-kohaku  .dept-head .dept-zh { color: var(--kohaku); }
@@ -1878,6 +1889,8 @@ const eventsRef = db.ref('events');
 // ─── Organization units (組別 → 處室) ───────────────────────────
 // Single source of truth for departments and their groups.
 var ORG_UNITS = [
+  // 雙語部主任 Dean of IBSH
+  { group: '雙語部主任', groupEn: 'Dean of IBSH',                    dept: 'dean',           deptZh: '雙語部主任', deptEn: 'Dean of IBSH' },
   // 教務處 Academic Office
   { group: '教務組', groupEn: 'Academic Director',                 dept: 'academics',      deptZh: '教務處', deptEn: 'Academic Office' },
   { group: '課務組', groupEn: 'Academics Planning',                dept: 'academics',      deptZh: '教務處', deptEn: 'Academic Office' },
@@ -1904,6 +1917,7 @@ function classifyDept(nameOrAuthor) {
     if (s.indexOf(u.group) !== -1) return u.dept;
     if (u.groupEn && s.toLowerCase().indexOf(u.groupEn.toLowerCase()) !== -1) return u.dept;
   }
+  if (/雙語部主任|Dean\s*of\s*IBSH|IBSH\s*Dean/i.test(s))    return 'dean';
   if (/教務處|Academic\s*Office|Academic\s*Affairs/i.test(s)) return 'academics';
   if (/學務處|Student\s*Affairs/i.test(s))                    return 'studentAffairs';
   if (/輔導室|輔導處|Guidance|Counsel/i.test(s))                return 'guidance';
@@ -1921,12 +1935,13 @@ function orgUnitByGroup(groupName) {
 }
 
 var DEPT_INFO = {
-  academics:      { name: '教務處', en: 'Academic Office',             order: 1, color: 'ai'     },
-  studentAffairs: { name: '學務處', en: 'Student Affairs Office',      order: 2, color: 'midori' },
-  guidance:       { name: '輔導室', en: 'Guidance Counseling Office',  order: 3, color: 'kohaku' },
-  other:          { name: '其他',   en: 'Other',                       order: 4, color: 'shu'    }
+  dean:           { name: '雙語部主任', en: 'Dean of IBSH',                order: 0, color: 'murasaki' },
+  academics:      { name: '教務處',     en: 'Academic Office',             order: 1, color: 'ai'       },
+  studentAffairs: { name: '學務處',     en: 'Student Affairs Office',      order: 2, color: 'midori'   },
+  guidance:       { name: '輔導室',     en: 'Guidance Counseling Office',  order: 3, color: 'kohaku'   },
+  other:          { name: '其他',       en: 'Other',                       order: 4, color: 'shu'      }
 };
-var DEPT_KEYS = ['academics','studentAffairs','guidance'];
+var DEPT_KEYS = ['dean','academics','studentAffairs','guidance'];
 
 var DEPTS = DEPT_KEYS.map(function(k){
   var info = DEPT_INFO[k];
@@ -1937,7 +1952,7 @@ var DEPT_ORDER = {}; DEPTS.forEach(function(d,i){ DEPT_ORDER[d.key] = i; });
 
 function normalizeDeptKey(k) {
   var s = String(k || '');
-  if (s === 'academics' || s === 'studentAffairs' || s === 'guidance') return s;
+  if (s === 'dean' || s === 'academics' || s === 'studentAffairs' || s === 'guidance') return s;
   if (s === 'general' || s === 'elementary' || s === 'middleSchool') return 'academics';
   return classifyDept(s);
 }
@@ -2782,12 +2797,12 @@ function render() {
     html += '<div class="empty-state" style="padding:20px 0"><div class="state-text">此區間無事項　No items in this range</div></div>';
   } else {
     // Group by department (based on author name → classifyDept)
-    var buckets = { academics: [], studentAffairs: [], guidance: [], other: [] };
+    var buckets = { dean: [], academics: [], studentAffairs: [], guidance: [], other: [] };
     displayUpcom.forEach(function(e) {
       var d = classifyDept(e.author);
       buckets[d].push(e);
     });
-    var deptOrder = ['academics','studentAffairs','guidance','other'];
+    var deptOrder = ['dean','academics','studentAffairs','guidance','other'];
     deptOrder.forEach(function(dept) {
       var items = buckets[dept];
       if (dept === 'other' && !items.length) return;
@@ -3105,7 +3120,7 @@ function renderCalendarHighlights() {
   });
 
   // Group upcoming by department
-  var byDept = { academics: [], studentAffairs: [], guidance: [], other: [] };
+  var byDept = { dean: [], academics: [], studentAffairs: [], guidance: [], other: [] };
   upcomingItems.forEach(function(e) {
     byDept[classifyDept(e.author)].push(e);
   });
@@ -3120,7 +3135,7 @@ function renderCalendarHighlights() {
   if (!flagged.length) {
     h += '<div class="ch-item"><span class="ch-content" style="color:var(--sumi-4)">此年段目前沒有選入的行事曆事項　No calendar items selected for this grade band</span></div>';
   } else {
-    var deptOrder = ['academics','studentAffairs','guidance','other'];
+    var deptOrder = ['dean','academics','studentAffairs','guidance','other'];
     var anyUpcoming = false;
     deptOrder.forEach(function(dept) {
       var items = byDept[dept];
