@@ -1443,6 +1443,295 @@ textarea.notice-input:focus { border-color: var(--shu); box-shadow: 0 0 0 2px rg
   .grade-chip span { font-size: 13px; }
 }
 
+
+/* ═══════════════════════════════════════════════════════════════
+   MONTH VIEW  ·  行事曆一覽
+═══════════════════════════════════════════════════════════════ */
+.mv-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .mv-layout { grid-template-columns: 1fr; }
+}
+
+/* ─── LEFT: month calendar ─── */
+.mv-left {
+  background: var(--wa);
+  border: 1px solid var(--sumi-5);
+  box-shadow: 3px 3px 0 var(--wa-shadow);
+  padding: 18px 20px 16px;
+  position: sticky; top: 12px;
+}
+.mv-cal-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px; padding-bottom: 12px;
+  border-bottom: 1px dashed var(--sumi-5);
+}
+.mv-nav {
+  background: none; border: 1px solid var(--sumi-5); cursor: pointer;
+  padding: 6px 10px; font-family: 'IBM Plex Mono', monospace;
+  color: var(--sumi-3); font-size: 12px; transition: all .15s var(--ease);
+}
+.mv-nav:hover { border-color: var(--shu); color: var(--shu); box-shadow: 1px 1px 0 var(--sumi-4); }
+.mv-title { flex: 1; text-align: center; }
+.mv-title-zh {
+  display: block; font-family: 'Shippori Mincho', serif;
+  font-size: 22px; font-weight: 700; color: var(--sumi); letter-spacing: .05em;
+  line-height: 1;
+}
+.mv-title-en {
+  display: block; font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px; font-weight: 600; letter-spacing: 2.5px;
+  color: var(--sumi-4); text-transform: uppercase; margin-top: 4px;
+}
+.mv-today {
+  background: none; border: 1px solid var(--shu); color: var(--shu);
+  padding: 6px 10px; font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: 1.5px; cursor: pointer;
+  transition: all .15s var(--ease); text-transform: uppercase; font-weight: 600;
+  white-space: nowrap;
+}
+.mv-today:hover { background: var(--shu); color: white; box-shadow: 1px 1px 0 var(--sumi-4); }
+
+.mv-weekdays {
+  display: grid; grid-template-columns: repeat(7,1fr);
+  gap: 2px; margin-bottom: 6px;
+}
+.mv-weekdays span {
+  text-align: center; padding: 6px 2px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  font-weight: 600; letter-spacing: 1.2px; color: var(--sumi-4);
+  text-transform: uppercase;
+}
+.mv-weekdays span:first-child { color: var(--shu); }
+.mv-weekdays span:last-child  { color: var(--ai); }
+
+.mv-cal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+.mv-cell {
+  min-height: 62px;
+  aspect-ratio: 1 / 1;
+  padding: 6px 6px 4px; cursor: pointer;
+  border: 1.5px solid var(--sumi-6);
+  background: var(--wa);
+  display: flex; flex-direction: column;
+  transition: all .12s var(--ease);
+  position: relative;
+}
+.mv-cell.other-month { opacity: .3; background: var(--wa-2); }
+.mv-cell.today {
+  background: var(--shu-wash);
+  border-color: var(--shu);
+  box-shadow: inset 0 0 0 1px var(--shu);
+}
+.mv-cell.selected {
+  background: var(--sumi);
+  border-color: var(--sumi);
+  box-shadow: 2px 2px 0 var(--sumi-4);
+}
+.mv-cell.selected .mv-day-num { color: var(--wa); }
+.mv-cell.selected .mv-count-badge { background: var(--wa); color: var(--sumi); }
+.mv-cell.today.selected { background: var(--shu); border-color: var(--shu); }
+.mv-cell:hover:not(.selected) {
+  border-color: var(--shu); box-shadow: 2px 2px 0 var(--sumi-6);
+  z-index: 1;
+}
+.mv-day-num {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 15px; font-weight: 600; color: var(--sumi-2);
+  line-height: 1;
+}
+.mv-cell.sun .mv-day-num { color: var(--shu); }
+.mv-cell.sat .mv-day-num { color: var(--ai); }
+.mv-dots {
+  display: flex; gap: 3px; flex-wrap: wrap;
+  margin-top: auto; padding-top: 4px;
+}
+.mv-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  display: inline-block; flex-shrink: 0;
+}
+.mv-dot-murasaki { background: var(--murasaki); }
+.mv-dot-ai       { background: var(--ai); }
+.mv-dot-midori   { background: var(--midori); }
+.mv-dot-kohaku   { background: var(--kohaku); }
+.mv-dot-shu      { background: var(--shu); }
+.mv-count-badge {
+  position: absolute; top: 4px; right: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; font-weight: 700;
+  background: var(--sumi-4); color: white;
+  padding: 1px 4px; letter-spacing: .5px;
+  border-radius: 8px; min-width: 14px; text-align: center;
+  line-height: 1.4;
+}
+
+.mv-legend {
+  margin-top: 16px; padding-top: 12px;
+  border-top: 1px dashed var(--sumi-5);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px; color: var(--sumi-4);
+}
+.mv-legend-title {
+  font-weight: 600; letter-spacing: 1.5px;
+  color: var(--sumi-3); text-transform: uppercase;
+  margin-right: 4px;
+}
+.mv-legend-item {
+  display: inline-flex; align-items: center; gap: 5px;
+  color: var(--sumi-2); letter-spacing: .5px;
+}
+.mv-legend-item .mv-dot { width: 8px; height: 8px; }
+
+/* ─── RIGHT: day details ─── */
+.mv-right {
+  background: var(--wa);
+  border: 1px solid var(--sumi-5);
+  box-shadow: 3px 3px 0 var(--wa-shadow);
+  min-height: 400px;
+}
+.mv-detail-head {
+  padding: 18px 22px 16px;
+  background: var(--wa-2);
+  border-bottom: 1px solid var(--sumi-5);
+}
+.mv-detail-eyebrow {
+  display: block; font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: 3px; color: var(--shu);
+  text-transform: uppercase; font-weight: 600; margin-bottom: 4px;
+}
+.mv-detail-title {
+  display: block; font-family: 'Shippori Mincho', serif;
+  font-size: 26px; font-weight: 700; color: var(--sumi);
+  line-height: 1.1; letter-spacing: .02em;
+}
+.mv-detail-title-en {
+  display: block; font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; letter-spacing: 2px; color: var(--sumi-4);
+  text-transform: uppercase; margin-top: 6px;
+}
+.mv-detail-body { padding: 6px 0; }
+
+.mv-empty {
+  text-align: center; padding: 60px 24px; color: var(--sumi-4);
+}
+.mv-empty-icon { font-size: 36px; opacity: .4; margin-bottom: 12px; }
+.mv-empty-text {
+  font-family: 'Shippori Mincho', serif; font-size: 14px;
+  line-height: 1.8; color: var(--sumi-3);
+}
+.mv-empty-text .en {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 2px; color: var(--sumi-4); text-transform: uppercase;
+  margin-left: 0;
+}
+
+/* Single event/notice card in the right panel */
+.mv-item {
+  padding: 12px 20px;
+  border-top: 1px solid var(--sumi-6);
+  cursor: pointer;
+  transition: background .15s var(--ease);
+  position: relative;
+}
+.mv-item:first-child { border-top: none; }
+.mv-item:hover { background: var(--wa-2); }
+.mv-item.expanded { background: var(--wa-2); }
+.mv-item-head {
+  display: flex; align-items: center; gap: 10px;
+}
+.mv-item-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.mv-item-time {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; font-weight: 600; color: var(--shu);
+  min-width: 90px; letter-spacing: .5px;
+}
+.mv-item-time.no-time { color: var(--sumi-4); font-style: italic; }
+.mv-item-type {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; font-weight: 700; letter-spacing: 1.5px;
+  padding: 2px 6px; color: white; text-transform: uppercase;
+  border-radius: 2px;
+}
+.mv-item-type.event  { background: var(--kohaku); }
+.mv-item-type.notice { background: var(--ai); }
+.mv-item-title {
+  flex: 1; font-family: 'Noto Serif TC','Shippori Mincho',serif;
+  font-size: 15px; font-weight: 500; color: var(--sumi);
+  line-height: 1.4; word-break: break-word;
+}
+.mv-item-chevron {
+  color: var(--sumi-4); font-size: 11px;
+  transition: transform .2s var(--ease); flex-shrink: 0;
+}
+.mv-item.expanded .mv-item-chevron { transform: rotate(90deg); }
+.mv-item-meta {
+  margin-left: 100px; margin-top: 4px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 10.5px;
+  color: var(--sumi-4); letter-spacing: .5px;
+}
+.mv-item-meta .mv-dept-label {
+  display: inline-block; padding: 1px 6px;
+  border: 1px solid currentColor; border-radius: 99px;
+  font-weight: 600; letter-spacing: 1.5px;
+  margin-right: 6px; text-transform: uppercase; font-size: 9.5px;
+}
+.mv-item-meta .mv-loc { color: var(--midori); }
+.mv-item-meta .mv-author { color: var(--sumi-4); }
+
+.mv-item-detail {
+  display: none;
+  margin: 8px 0 4px 100px;
+  padding: 12px 14px;
+  background: var(--wa);
+  border-left: 3px solid var(--shu);
+  font-family: 'Noto Serif TC','Shippori Mincho',serif;
+  font-size: 14px; line-height: 1.7; color: var(--sumi);
+  word-break: break-word;
+}
+.mv-item-detail a {
+  color: var(--ai); text-decoration: none;
+  border-bottom: 1px solid rgba(44,79,124,.35); word-break: break-all;
+}
+.mv-item-detail a:hover { color: var(--ai-hi); border-bottom-color: var(--ai-hi); }
+.mv-item.expanded .mv-item-detail { display: block; animation: paperIn .25s var(--ease-out) both; }
+.mv-item-detail .mv-detail-empty {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10.5px;
+  color: var(--sumi-4); letter-spacing: 1px; font-style: italic;
+}
+
+/* Dept-tinted left border on items */
+.mv-item[data-dept="dean"]           { box-shadow: inset 3px 0 0 var(--murasaki); }
+.mv-item[data-dept="academics"]      { box-shadow: inset 3px 0 0 var(--ai); }
+.mv-item[data-dept="studentAffairs"] { box-shadow: inset 3px 0 0 var(--midori); }
+.mv-item[data-dept="guidance"]       { box-shadow: inset 3px 0 0 var(--kohaku); }
+.mv-item[data-dept="other"]          { box-shadow: inset 3px 0 0 var(--shu); }
+.mv-item[data-dept="dean"]           .mv-item-type.notice { background: var(--murasaki); }
+.mv-item[data-dept="academics"]      .mv-item-type.notice { background: var(--ai); }
+.mv-item[data-dept="studentAffairs"] .mv-item-type.notice { background: var(--midori); }
+.mv-item[data-dept="guidance"]       .mv-item-type.notice { background: var(--kohaku); }
+
+/* Mobile */
+@media (max-width: 900px) {
+  .mv-left { position: static; }
+  .mv-cell { min-height: 44px; aspect-ratio: auto; padding: 4px 4px 3px; }
+  .mv-day-num { font-size: 13px; }
+  .mv-dots { padding-top: 2px; }
+  .mv-dot { width: 5px; height: 5px; }
+  .mv-count-badge { font-size: 8px; padding: 0 3px; }
+  .mv-detail-title { font-size: 20px; }
+  .mv-item-time { min-width: 70px; font-size: 11px; }
+  .mv-item-meta, .mv-item-detail { margin-left: 0; margin-top: 6px; }
+}
+
 /* ── 中英對照：行內英文 ── */
 .en {
   font-family: 'IBM Plex Mono', monospace; font-weight: 500;
@@ -1536,6 +1825,9 @@ label .en { color: var(--ai); font-weight: 600; }
     <button class="mode-tab active" id="tab-notice" onclick="switchMode('notice')">
       週報公告<span class="tab-en">Weekly Notice</span>
     </button>
+    <button class="mode-tab" id="tab-monthview" onclick="switchMode('monthview')">
+      行事曆一覽<span class="tab-en">Month View</span>
+    </button>
     <button class="mode-tab" id="tab-calendar" onclick="switchMode('calendar')">
       工作行事曆<span class="tab-en">Work Calendar</span>
     </button>
@@ -1607,6 +1899,54 @@ label .en { color: var(--ai); font-weight: 600; }
   </div>
 
 <!-- ════════════════════ 行事曆 PANE ════════════════════ -->
+  <!-- ════════════════════ 行事曆一覽 MONTH VIEW PANE ════════════════════ -->
+  <div class="mode-pane" id="pane-monthview">
+    <div class="mv-layout">
+      <!-- LEFT: month calendar -->
+      <div class="mv-left">
+        <div class="mv-cal-head">
+          <button class="mv-nav" id="mv-prev" onclick="mvChangeMonth(-1)">◀</button>
+          <div class="mv-title">
+            <span class="mv-title-zh" id="mv-title-zh">— 月</span>
+            <span class="mv-title-en" id="mv-title-en">Month</span>
+          </div>
+          <button class="mv-nav" id="mv-next" onclick="mvChangeMonth(1)">▶</button>
+          <button class="mv-today" onclick="mvGoToday()">今日 · Today</button>
+        </div>
+        <div class="mv-weekdays">
+          <span>日 Sun</span><span>一 Mon</span><span>二 Tue</span>
+          <span>三 Wed</span><span>四 Thu</span><span>五 Fri</span><span>六 Sat</span>
+        </div>
+        <div class="mv-cal-grid" id="mv-cal-grid"></div>
+        <div class="mv-legend">
+          <span class="mv-legend-title">處室色</span>
+          <span class="mv-legend-item"><span class="mv-dot mv-dot-murasaki"></span>雙語部主任</span>
+          <span class="mv-legend-item"><span class="mv-dot mv-dot-ai"></span>教務處</span>
+          <span class="mv-legend-item"><span class="mv-dot mv-dot-midori"></span>學務處</span>
+          <span class="mv-legend-item"><span class="mv-dot mv-dot-kohaku"></span>輔導室</span>
+        </div>
+      </div>
+
+      <!-- RIGHT: selected-day details -->
+      <div class="mv-right">
+        <div class="mv-detail-head">
+          <div class="mv-detail-date">
+            <span class="mv-detail-eyebrow" id="mv-detail-eyebrow">— —</span>
+            <span class="mv-detail-title" id="mv-detail-title">請選擇日期</span>
+            <span class="mv-detail-title-en" id="mv-detail-title-en">Select a date</span>
+          </div>
+        </div>
+        <div class="mv-detail-body" id="mv-detail-body">
+          <div class="mv-empty">
+            <div class="mv-empty-icon">📅</div>
+            <div class="mv-empty-text">請點選左側日曆上的任一天以檢視當日事項<br>
+              <span class="en">Tap a date to view events</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="mode-pane" id="pane-calendar">
 
 <!-- Form -->
@@ -2012,9 +2352,15 @@ function switchMode(mode) {
   if (mode === 'calendar' && auth.role === 'guest') mode = 'notice';
   currentMode = mode;
   document.getElementById('tab-notice').classList.toggle('active', mode === 'notice');
+  document.getElementById('tab-monthview').classList.toggle('active', mode === 'monthview');
   document.getElementById('tab-calendar').classList.toggle('active', mode === 'calendar');
   document.getElementById('pane-notice').classList.toggle('active', mode === 'notice');
+  document.getElementById('pane-monthview').classList.toggle('active', mode === 'monthview');
   document.getElementById('pane-calendar').classList.toggle('active', mode === 'calendar');
+  if (mode === 'monthview') {
+    if (!mvViewMonth) mvGoToday();
+    else renderMonthView();
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -2050,6 +2396,8 @@ noticesRef.on('value', function(snap) {
     return Object.assign({}, en[1], { fbKey: en[0] });
   });
   renderNotices();
+  // Refresh month view if active
+  if (typeof refreshMonthViewIfActive === 'function') refreshMonthViewIfActive();
 });
 
 // ── submit (create / update) ──
@@ -2338,6 +2686,291 @@ var upcomFilterYear  = '';
 var upcomFilterMonth = '';
 
 // ─── Realtime listener ───────────────────────────────────────────
+
+
+// ═══════════════════════════════════════════════════════════════
+//  行事曆一覽 MONTH VIEW MODULE
+// ═══════════════════════════════════════════════════════════════
+var mvViewMonth = '';      // YYYY-MM string of the month currently displayed
+var mvSelectedDate = '';   // YYYY-MM-DD of currently selected day (empty = none)
+
+// Navigate to today, sets view month + selects today
+function mvGoToday() {
+  var today = taiwanToday();
+  mvViewMonth = today.slice(0, 7);
+  mvSelectedDate = today;
+  renderMonthView();
+}
+
+// Change month by delta (-1 or +1)
+function mvChangeMonth(delta) {
+  var parts = (mvViewMonth || taiwanToday().slice(0,7)).split('-');
+  var y = +parts[0], m = +parts[1] + delta;
+  if (m < 1) { m = 12; y--; }
+  if (m > 12) { m = 1; y++; }
+  mvViewMonth = y + '-' + String(m).padStart(2, '0');
+  renderMonthView();
+}
+
+// Pick a date on the calendar
+function mvSelectDate(dateStr) {
+  mvSelectedDate = dateStr;
+  renderMonthView();
+}
+
+// Collect all events + notices happening on a specific date
+// Returns array of unified items:
+//   { type: 'event'|'notice', date, timeStart, timeEnd, dept, deptZh, title,
+//     author, location, detail, fbKey }
+function mvCollectItemsForDate(dateStr) {
+  var items = [];
+
+  // Calendar events (expand multi-day groups: each day counts)
+  if (typeof allEvents !== 'undefined' && allEvents) {
+    allEvents.forEach(function(e) {
+      if (e.date !== dateStr) return;
+      var clean = (e.content || '').replace(/（第\s*\d+\s*天／共\s*\d+\s*天）$/, '').trimEnd();
+      var deptKey = classifyDept(e.author);
+      items.push({
+        type: 'event',
+        date: e.date,
+        timeStart: e.timeStart || '',
+        timeEnd: e.timeEnd || '',
+        dept: deptKey,
+        deptZh: DEPT_INFO[deptKey] ? DEPT_INFO[deptKey].name : '',
+        title: clean,
+        author: e.author || '',
+        location: e.location || '',
+        detail: e.noticeNote || '',   // may be empty
+        fbKey: e.fbKey,
+        groupId: e.groupId || ''
+      });
+    });
+  }
+
+  // Notices — a notice's own date is weekDate (the week it belongs to)
+  if (typeof allNotices !== 'undefined' && allNotices) {
+    allNotices.forEach(function(n) {
+      if (n.weekDate !== dateStr) return;
+      var deptKey = normalizeDeptKey(n.dept);
+      items.push({
+        type: 'notice',
+        date: n.weekDate,
+        timeStart: '',                 // notices have no time
+        timeEnd: '',
+        dept: deptKey,
+        deptZh: DEPT_INFO[deptKey] ? DEPT_INFO[deptKey].name : '',
+        title: (n.content || '').split('\n')[0].slice(0, 80),  // first line as title
+        author: n.author || n.poster || '',
+        location: '',
+        detail: n.content || '',
+        fbKey: n.fbKey,
+        poster: n.poster || ''
+      });
+    });
+  }
+
+  // Sort by timeStart (notices without time go to the end)
+  items.sort(function(a, b) {
+    if (!a.timeStart && !b.timeStart) return 0;
+    if (!a.timeStart) return 1;
+    if (!b.timeStart) return -1;
+    return a.timeStart < b.timeStart ? -1 : a.timeStart > b.timeStart ? 1 : 0;
+  });
+  return items;
+}
+
+// Aggregate departments that have any activity on a given date (for calendar dots)
+function mvDeptsOnDate(dateStr) {
+  var depts = {};
+  if (typeof allEvents !== 'undefined' && allEvents) {
+    allEvents.forEach(function(e) {
+      if (e.date !== dateStr) return;
+      depts[classifyDept(e.author)] = true;
+    });
+  }
+  if (typeof allNotices !== 'undefined' && allNotices) {
+    allNotices.forEach(function(n) {
+      if (n.weekDate !== dateStr) return;
+      depts[normalizeDeptKey(n.dept)] = true;
+    });
+  }
+  return depts;
+}
+
+// Count total items on a date
+function mvCountOnDate(dateStr) {
+  var n = 0;
+  if (typeof allEvents !== 'undefined' && allEvents) {
+    allEvents.forEach(function(e) { if (e.date === dateStr) n++; });
+  }
+  if (typeof allNotices !== 'undefined' && allNotices) {
+    allNotices.forEach(function(nt) { if (nt.weekDate === dateStr) n++; });
+  }
+  return n;
+}
+
+// Full render: calendar grid + right-hand detail panel
+function renderMonthView() {
+  if (!mvViewMonth) return;
+  var parts = mvViewMonth.split('-');
+  var y = +parts[0], m = +parts[1];
+  var today = taiwanToday();
+
+  // Header
+  var mzh = ['','1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  var men = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('mv-title-zh').textContent = y + '年 ' + mzh[m];
+  document.getElementById('mv-title-en').textContent = men[m] + ' ' + y;
+
+  // Grid: start on Sunday of the week containing day 1
+  var firstDow = dowFromYMD(y, m, 1);          // 0=Sun..6=Sat
+  var daysInThis = daysInMonth(y, m);
+  var prevY = y, prevM = m - 1; if (prevM < 1) { prevM = 12; prevY--; }
+  var daysInPrev = daysInMonth(prevY, prevM);
+  var nextY = y, nextM = m + 1; if (nextM > 12) { nextM = 1; nextY++; }
+
+  var cells = [];
+  // Leading days from previous month
+  for (var i = firstDow - 1; i >= 0; i--) {
+    var d = daysInPrev - i;
+    cells.push({ y: prevY, m: prevM, d: d, other: true });
+  }
+  // Current month
+  for (var d = 1; d <= daysInThis; d++) cells.push({ y: y, m: m, d: d, other: false });
+  // Trailing days from next month to fill last row
+  while (cells.length % 7 !== 0) {
+    var d2 = cells.length - (firstDow + daysInThis) + 1;
+    cells.push({ y: nextY, m: nextM, d: d2, other: true });
+  }
+
+  var gridHtml = '';
+  cells.forEach(function(c) {
+    var dateStr = c.y + '-' + String(c.m).padStart(2,'0') + '-' + String(c.d).padStart(2,'0');
+    var dow = dowFromYMD(c.y, c.m, c.d);
+    var isToday = (dateStr === today);
+    var isSel   = (dateStr === mvSelectedDate);
+    var depts   = mvDeptsOnDate(dateStr);
+    var count   = mvCountOnDate(dateStr);
+
+    var cls = 'mv-cell';
+    if (c.other) cls += ' other-month';
+    if (isToday) cls += ' today';
+    if (isSel)   cls += ' selected';
+    if (dow === 0) cls += ' sun';
+    if (dow === 6) cls += ' sat';
+
+    gridHtml += '<div class="' + cls + '" onclick="mvSelectDate(\'' + dateStr + '\')">';
+    gridHtml += '<span class="mv-day-num">' + c.d + '</span>';
+    if (count > 0) gridHtml += '<span class="mv-count-badge">' + count + '</span>';
+    if (Object.keys(depts).length) {
+      gridHtml += '<div class="mv-dots">';
+      // Fixed order: dean → academics → studentAffairs → guidance → other
+      ['dean','academics','studentAffairs','guidance','other'].forEach(function(dept) {
+        if (depts[dept]) {
+          var info = DEPT_INFO[dept];
+          gridHtml += '<span class="mv-dot mv-dot-' + info.color + '" title="' + info.name + '"></span>';
+        }
+      });
+      gridHtml += '</div>';
+    }
+    gridHtml += '</div>';
+  });
+
+  document.getElementById('mv-cal-grid').innerHTML = gridHtml;
+
+  // Right panel: selected day details
+  renderMonthViewDetail();
+}
+
+function renderMonthViewDetail() {
+  var eyebrowEl = document.getElementById('mv-detail-eyebrow');
+  var titleEl   = document.getElementById('mv-detail-title');
+  var titleEnEl = document.getElementById('mv-detail-title-en');
+  var bodyEl    = document.getElementById('mv-detail-body');
+
+  if (!mvSelectedDate) {
+    eyebrowEl.textContent = '— —';
+    titleEl.textContent   = '請選擇日期';
+    titleEnEl.textContent = 'Select a date';
+    bodyEl.innerHTML = '<div class="mv-empty"><div class="mv-empty-icon">📅</div>' +
+      '<div class="mv-empty-text">請點選左側日曆上的任一天以檢視當日事項<br>' +
+      '<span class="en">Tap a date to view events</span></div></div>';
+    return;
+  }
+
+  var parts = mvSelectedDate.split('-');
+  var y = +parts[0], m = +parts[1], d = +parts[2];
+  var wdZh = ['週日','週一','週二','週三','週四','週五','週六'][dowFromYMD(y,m,d)];
+  var wdEn = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dowFromYMD(y,m,d)];
+  var monthEn = ['','January','February','March','April','May','June','July','August','September','October','November','December'][m];
+
+  eyebrowEl.textContent = y + '年 ' + m + '月 ' + d + '日 ' + wdZh;
+  titleEl.textContent   = m + '月 ' + d + '日';
+  titleEnEl.textContent = monthEn + ' ' + d + ', ' + y + ' · ' + wdEn;
+
+  var items = mvCollectItemsForDate(mvSelectedDate);
+  if (!items.length) {
+    bodyEl.innerHTML = '<div class="mv-empty" style="padding:40px 24px">' +
+      '<div class="mv-empty-icon" style="font-size:26px">📭</div>' +
+      '<div class="mv-empty-text">此日無事項<br><span class="en">No items on this date</span></div></div>';
+    return;
+  }
+
+  var h = '';
+  items.forEach(function(item, i) {
+    var timeText = item.timeStart
+      ? (item.timeStart + (item.timeEnd ? (' → ' + item.timeEnd) : ''))
+      : '全日';
+    var timeClass = item.timeStart ? '' : ' no-time';
+    var typeLabel = item.type === 'event' ? 'CAL' : 'NOTICE';
+    var deptColor = DEPT_INFO[item.dept] ? DEPT_INFO[item.dept].color : 'shu';
+    var itemId = 'mv-item-' + i + '-' + (item.fbKey || '');
+
+    h += '<div class="mv-item" id="' + itemId + '" data-dept="' + item.dept + '" onclick="mvToggleItem(this)">';
+    h += '<div class="mv-item-head">';
+    h += '<span class="mv-item-dot mv-dot-' + deptColor + '"></span>';
+    h += '<span class="mv-item-time' + timeClass + '">' + timeText + '</span>';
+    h += '<span class="mv-item-type ' + item.type + '">' + typeLabel + '</span>';
+    h += '<span class="mv-item-title">' + esc(item.title) + '</span>';
+    h += '<span class="mv-item-chevron">▶</span>';
+    h += '</div>';
+
+    // Meta row
+    var metaParts = [];
+    if (item.deptZh) metaParts.push('<span class="mv-dept-label" style="color:var(--' + deptColor + ')">' + item.deptZh + '</span>');
+    if (item.location) metaParts.push('<span class="mv-loc">◎ ' + esc(item.location) + '</span>');
+    if (item.author)   metaParts.push('<span class="mv-author">✎ ' + esc(item.author) + '</span>');
+    if (metaParts.length) {
+      h += '<div class="mv-item-meta">' + metaParts.join(' · ') + '</div>';
+    }
+
+    // Detail
+    h += '<div class="mv-item-detail">';
+    if (item.detail) {
+      h += linkify(item.detail);
+    } else {
+      h += '<span class="mv-detail-empty">（無詳細說明）No additional details</span>';
+    }
+    h += '</div>';
+
+    h += '</div>';
+  });
+  bodyEl.innerHTML = h;
+}
+
+function mvToggleItem(el) {
+  el.classList.toggle('expanded');
+}
+
+// Auto-refresh month view when underlying data changes
+// Hook into the existing rendering pipeline by exposing a helper
+function refreshMonthViewIfActive() {
+  if (currentMode === 'monthview' && mvViewMonth) {
+    renderMonthView();
+  }
+}
+
 // Initialize auth UI on page load
 applyAuth();
 if (typeof prefillDeptFromAuth === 'function') prefillDeptFromAuth();
