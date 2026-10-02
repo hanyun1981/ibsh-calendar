@@ -1719,6 +1719,55 @@ textarea.notice-input:focus { border-color: var(--shu); box-shadow: 0 0 0 2px rg
 .mv-item[data-dept="studentAffairs"] .mv-item-type.notice { background: var(--midori); }
 .mv-item[data-dept="guidance"]       .mv-item-type.notice { background: var(--kohaku); }
 
+
+/* Holiday markers in month view */
+.mv-cell.holiday {
+  background: linear-gradient(135deg, var(--shu-wash) 0%, var(--wa) 100%);
+  border-color: var(--shu);
+}
+.mv-cell.holiday .mv-day-num { color: var(--shu); font-weight: 700; }
+.mv-cell.holiday.selected .mv-day-num { color: var(--wa); }
+.mv-cell.holiday.selected { background: var(--shu); border-color: var(--shu); }
+.mv-holiday-tag {
+  position: absolute; bottom: 4px; left: 4px; right: 4px;
+  font-family: 'Shippori Mincho', serif;
+  font-size: 10px; font-weight: 600;
+  color: var(--shu); line-height: 1.1;
+  text-align: left;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  letter-spacing: 0;
+}
+.mv-cell.selected .mv-holiday-tag { color: var(--wa); }
+
+.mv-holiday-banner {
+  display: flex; align-items: center; gap: 14px;
+  margin: 14px 20px 10px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, var(--shu-wash) 0%, var(--wa-2) 100%);
+  border: 1px solid var(--shu);
+  border-left: 4px solid var(--shu);
+}
+.mv-holiday-icon { font-size: 22px; flex-shrink: 0; }
+.mv-holiday-text { display: flex; flex-direction: column; gap: 2px; }
+.mv-holiday-zh {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 16px; font-weight: 700; color: var(--shu);
+  letter-spacing: .05em; line-height: 1.2;
+}
+.mv-holiday-en {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px; letter-spacing: 1.5px;
+  color: var(--sumi-3); text-transform: uppercase;
+  font-weight: 500;
+}
+
+@media (max-width: 900px) {
+  .mv-holiday-tag { font-size: 8px; bottom: 2px; left: 2px; right: 2px; }
+  .mv-holiday-banner { margin: 10px 14px 8px; padding: 10px 12px; gap: 10px; }
+  .mv-holiday-zh { font-size: 14px; }
+  .mv-holiday-icon { font-size: 18px; }
+}
+
 /* Mobile */
 @media (max-width: 900px) {
   .mv-left { position: static; }
@@ -1924,6 +1973,7 @@ label .en { color: var(--ai); font-weight: 600; }
           <span class="mv-legend-item"><span class="mv-dot mv-dot-ai"></span>教務處</span>
           <span class="mv-legend-item"><span class="mv-dot mv-dot-midori"></span>學務處</span>
           <span class="mv-legend-item"><span class="mv-dot mv-dot-kohaku"></span>輔導室</span>
+          <span class="mv-legend-item" style="color:var(--shu)"><span class="mv-dot" style="background:var(--shu)"></span>國定假日 Holiday</span>
         </div>
       </div>
 
@@ -2694,6 +2744,85 @@ var upcomFilterMonth = '';
 var mvViewMonth = '';      // YYYY-MM string of the month currently displayed
 var mvSelectedDate = '';   // YYYY-MM-DD of currently selected day (empty = none)
 
+
+// ─── 中華民國（台灣）國定假日 Taiwan National Holidays ───────────
+// Includes both fixed-date and lunar-calendar-based holidays for 2024-2027.
+// Each entry: 'YYYY-MM-DD': { zh: '中文', en: 'English' }
+var TW_HOLIDAYS = {
+  // 2024
+  '2024-01-01': { zh: '元旦',          en: "New Year's Day" },
+  '2024-02-08': { zh: '農曆除夕',      en: "Lunar New Year's Eve" },
+  '2024-02-09': { zh: '農曆除夕',      en: "Lunar New Year's Eve" },
+  '2024-02-10': { zh: '春節',          en: 'Lunar New Year' },
+  '2024-02-11': { zh: '春節',          en: 'Lunar New Year' },
+  '2024-02-12': { zh: '春節',          en: 'Lunar New Year' },
+  '2024-02-13': { zh: '春節',          en: 'Lunar New Year' },
+  '2024-02-14': { zh: '春節',          en: 'Lunar New Year' },
+  '2024-02-28': { zh: '和平紀念日',    en: 'Peace Memorial Day' },
+  '2024-04-04': { zh: '兒童節',        en: "Children's Day" },
+  '2024-04-05': { zh: '清明節',        en: 'Tomb Sweeping Day' },
+  '2024-05-01': { zh: '勞動節',        en: 'Labor Day' },
+  '2024-06-10': { zh: '端午節',        en: 'Dragon Boat Festival' },
+  '2024-09-17': { zh: '中秋節',        en: 'Mid-Autumn Festival' },
+  '2024-10-10': { zh: '國慶日',        en: 'National Day' },
+
+  // 2025
+  '2025-01-01': { zh: '元旦',          en: "New Year's Day" },
+  '2025-01-27': { zh: '農曆除夕',      en: "Lunar New Year's Eve (adj.)" },
+  '2025-01-28': { zh: '農曆除夕',      en: "Lunar New Year's Eve" },
+  '2025-01-29': { zh: '春節',          en: 'Lunar New Year' },
+  '2025-01-30': { zh: '春節',          en: 'Lunar New Year' },
+  '2025-01-31': { zh: '春節',          en: 'Lunar New Year' },
+  '2025-02-28': { zh: '和平紀念日',    en: 'Peace Memorial Day' },
+  '2025-04-03': { zh: '兒童節(補)',    en: "Children's Day (obs.)" },
+  '2025-04-04': { zh: '兒童節／清明節', en: "Children's Day / Tomb Sweeping Day" },
+  '2025-05-01': { zh: '勞動節',        en: 'Labor Day' },
+  '2025-05-30': { zh: '端午節(補)',    en: 'Dragon Boat Festival (obs.)' },
+  '2025-05-31': { zh: '端午節',        en: 'Dragon Boat Festival' },
+  '2025-10-06': { zh: '中秋節',        en: 'Mid-Autumn Festival' },
+  '2025-10-10': { zh: '國慶日',        en: 'National Day' },
+
+  // 2026
+  '2026-01-01': { zh: '元旦',          en: "New Year's Day" },
+  '2026-01-02': { zh: '元旦彈性放假',  en: "New Year's Day (flex)" },
+  '2026-02-16': { zh: '農曆除夕',      en: "Lunar New Year's Eve" },
+  '2026-02-17': { zh: '春節',          en: 'Lunar New Year' },
+  '2026-02-18': { zh: '春節',          en: 'Lunar New Year' },
+  '2026-02-19': { zh: '春節',          en: 'Lunar New Year' },
+  '2026-02-20': { zh: '春節',          en: 'Lunar New Year' },
+  '2026-02-27': { zh: '和平紀念日(補)', en: 'Peace Memorial Day (obs.)' },
+  '2026-02-28': { zh: '和平紀念日',    en: 'Peace Memorial Day' },
+  '2026-04-03': { zh: '兒童節',        en: "Children's Day" },
+  '2026-04-06': { zh: '清明節(補)',    en: 'Tomb Sweeping Day (obs.)' },
+  '2026-05-01': { zh: '勞動節',        en: 'Labor Day' },
+  '2026-06-19': { zh: '端午節',        en: 'Dragon Boat Festival' },
+  '2026-09-25': { zh: '中秋節',        en: 'Mid-Autumn Festival' },
+  '2026-10-09': { zh: '國慶日彈性放假', en: 'National Day (flex)' },
+  '2026-10-10': { zh: '國慶日',        en: 'National Day' },
+
+  // 2027
+  '2027-01-01': { zh: '元旦',          en: "New Year's Day" },
+  '2027-02-05': { zh: '農曆除夕',      en: "Lunar New Year's Eve" },
+  '2027-02-06': { zh: '春節',          en: 'Lunar New Year' },
+  '2027-02-07': { zh: '春節',          en: 'Lunar New Year' },
+  '2027-02-08': { zh: '春節',          en: 'Lunar New Year' },
+  '2027-02-09': { zh: '春節',          en: 'Lunar New Year' },
+  '2027-02-26': { zh: '和平紀念日(補)', en: 'Peace Memorial Day (obs.)' },
+  '2027-02-28': { zh: '和平紀念日',    en: 'Peace Memorial Day' },
+  '2027-04-02': { zh: '兒童節(補)',    en: "Children's Day (obs.)" },
+  '2027-04-05': { zh: '清明節',        en: 'Tomb Sweeping Day' },
+  '2027-04-30': { zh: '勞動節(補)',    en: 'Labor Day (obs.)' },
+  '2027-05-01': { zh: '勞動節',        en: 'Labor Day' },
+  '2027-06-09': { zh: '端午節',        en: 'Dragon Boat Festival' },
+  '2027-09-15': { zh: '中秋節',        en: 'Mid-Autumn Festival' },
+  '2027-10-08': { zh: '國慶日彈性放假', en: 'National Day (flex)' },
+  '2027-10-11': { zh: '國慶日(補)',    en: 'National Day (obs.)' },
+};
+
+function getHoliday(dateStr) {
+  return TW_HOLIDAYS[dateStr] || null;
+}
+
 // Navigate to today, sets view month + selects today
 function mvGoToday() {
   var today = taiwanToday();
@@ -2860,9 +2989,14 @@ function renderMonthView() {
     if (dow === 0) cls += ' sun';
     if (dow === 6) cls += ' sat';
 
+    var holiday = getHoliday(dateStr);
+    if (holiday) cls += ' holiday';
     gridHtml += '<div class="' + cls + '" onclick="mvSelectDate(\'' + dateStr + '\')">';
     gridHtml += '<span class="mv-day-num">' + c.d + '</span>';
     if (count > 0) gridHtml += '<span class="mv-count-badge">' + count + '</span>';
+    if (holiday) {
+      gridHtml += '<span class="mv-holiday-tag" title="' + esc(holiday.zh) + ' · ' + esc(holiday.en) + '">' + esc(holiday.zh) + '</span>';
+    }
     if (Object.keys(depts).length) {
       gridHtml += '<div class="mv-dots">';
       // Fixed order: dean → academics → studentAffairs → guidance → other
@@ -2909,15 +3043,35 @@ function renderMonthViewDetail() {
   titleEl.textContent   = m + '月 ' + d + '日';
   titleEnEl.textContent = monthEn + ' ' + d + ', ' + y + ' · ' + wdEn;
 
+  // Holiday banner
+  var holiday = getHoliday(mvSelectedDate);
   var items = mvCollectItemsForDate(mvSelectedDate);
   if (!items.length) {
-    bodyEl.innerHTML = '<div class="mv-empty" style="padding:40px 24px">' +
+    var holidayHtml = '';
+    if (holiday) {
+      holidayHtml = '<div class="mv-holiday-banner">' +
+        '<span class="mv-holiday-icon">🎌</span>' +
+        '<div class="mv-holiday-text">' +
+          '<span class="mv-holiday-zh">' + esc(holiday.zh) + '</span>' +
+          '<span class="mv-holiday-en">' + esc(holiday.en) + '</span>' +
+        '</div></div>';
+    }
+    bodyEl.innerHTML = holidayHtml + '<div class="mv-empty" style="padding:40px 24px">' +
       '<div class="mv-empty-icon" style="font-size:26px">📭</div>' +
       '<div class="mv-empty-text">此日無事項<br><span class="en">No items on this date</span></div></div>';
     return;
   }
 
   var h = '';
+  if (holiday) {
+    h += '<div class="mv-holiday-banner">' +
+         '<span class="mv-holiday-icon">🎌</span>' +
+         '<div class="mv-holiday-text">' +
+           '<span class="mv-holiday-zh">' + esc(holiday.zh) + '</span>' +
+           '<span class="mv-holiday-en">' + esc(holiday.en) + '</span>' +
+         '</div>' +
+         '</div>';
+  }
   items.forEach(function(item, i) {
     var timeText = item.timeStart
       ? (item.timeStart + (item.timeEnd ? (' → ' + item.timeEnd) : ''))
