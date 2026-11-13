@@ -2513,10 +2513,11 @@ body.lv-kiosk .page-wrap::before { opacity:.04; }
         <div class="notice-hint">None selected = applies school-wide; shown under every grade-band filter.<span class="en">未勾選＝視為「全校適用」，在任何年段篩選下都會顯示。</span></div>
       </div>
       <div class="form-field full nf-extra" id="nf-extra">
-        <div class="nf-title">Details for Month View<span class="en">行事曆一覽內容</span><span class="nf-sub">Saved with the item. <span class="en">儲存事項時一併儲存。</span></span></div>
+        <div class="nf-title">Details for Month View<span class="en">行事曆一覽內容</span><span class="nf-sub">Saved with the item. Adding students on official leave shows the item in Month View automatically.<span class="en">儲存事項時一併儲存；加入學生公假名單後，事件會自動顯示於行事曆一覽。</span></span></div>
         <label>Details<span class="en">補充說明</span></label>
         <textarea id="inp-notice-note" class="notice-input" placeholder="補充給老師的細節、提醒或連結（網址會自動變成連結）…&#10;Extra details for teachers…"></textarea>
-        <div id="nf-stu" style="display:none"></div>
+        <label style="margin-top:14px;display:block">Students on official leave<span class="en">學生公假名單</span></label>
+        <div id="nf-stu"></div>
         <label style="margin-top:14px;display:block">Images<span class="en">相關圖片</span></label>
         <div id="nf-imgs"></div>
       </div>
@@ -2566,6 +2567,14 @@ body.lv-kiosk .page-wrap::before { opacity:.04; }
       </div>
       <div id="staff-status" class="acc-note"></div>
       <div class="acc-scroll"><table class="acc-table" id="staff-table"></table></div>
+    </div>
+    <div class="acc-card" style="margin-top:22px">
+      <div class="acc-head">
+        <div><h2>Student Roster<span class="en">學生名冊</span></h2>
+        <p class="acc-note">Used for the “Students on official leave” list in Work Calendar. Choose the student data Excel exported from the school system (.xls / .xlsx / .csv).<span class="en">工作行事曆的「學生公假名單」會用到這份名冊。請選擇校務系統匯出的「學生基本資料」Excel；只讀取學號、班級、座號、姓名、英文姓名、英文別名、年級與母親聯絡方式，身分證號與地址不會保存。</span></p></div>
+        <div class="acc-actions"><label class="btn-login" style="cursor:pointer">Import roster<span class="en">匯入名冊</span><input type="file" id="cal-roster-file" accept=".xls,.xlsx,.csv" style="display:none" onchange="calRosterImport(this)"></label></div>
+      </div>
+      <div id="cal-roster-status" class="acc-note"></div>
     </div>
   </div>
 
@@ -3207,7 +3216,7 @@ function switchMode(mode) {
   document.getElementById('tab-leave').classList.toggle('active', mode === 'leave');
   document.getElementById('tab-accounts').classList.toggle('active', mode === 'accounts');
   document.getElementById('pane-accounts').classList.toggle('active', mode === 'accounts');
-  if (mode === 'accounts') { renderAccounts(); renderStaff(); }
+  if (mode === 'accounts') { renderAccounts(); renderStaff(); calRosterRender(); setTimeout(function(){ calRosterRender(); }, 900); }
   document.getElementById('pane-leave').classList.toggle('active', mode === 'leave');
   document.getElementById('pane-notice').classList.toggle('active', mode === 'notice');
   document.getElementById('pane-monthview').classList.toggle('active', mode === 'monthview');
@@ -4060,7 +4069,7 @@ function cheStuState(e) { if (!CHE_STU || CHE_STU.key !== e.fbKey) CHE_STU = { k
 function cheStudentsEditor(e) {
   var LB = window.LeaveBridge;
   if (!LB || !LB.rosterReady || !LB.rosterReady())
-    return '<div class="che-hint" style="color:#b0520a">Student roster needed — import it in Student Leave → Roster first.<span class="en">需要學生名冊：請先到「Student Leave 學生請假」→「Roster 名冊匯入」匯入名冊。</span></div>';
+    return '<div class="che-hint" style="color:#b0520a">Student roster needed — import it in Admin Settings → Student Roster.<span class="en">需要學生名冊：請由管理員到「Admin Settings 管理員設定」→「Student Roster 學生名冊」匯入。</span></div>';
   cheStuState(e);
   var opts = LB.classes().map(function(c){ return '<option>' + esc(c) + '</option>'; }).join('');
   return '<div id="che-stu-chips" class="che-stu-chips">' + cheStuChipsHtml(e) + '</div>'
@@ -4328,7 +4337,7 @@ function fxRender() { fxRenderStu(); fxRenderImgs(); }
 function fxRenderStu() {
   var box = document.getElementById('nf-stu'); if (!box || !FX) return;
   var LB = window.LeaveBridge;
-  if (!LB || !LB.rosterReady || !LB.rosterReady()) { box.innerHTML = '<div class="notice-hint" style="color:#b0520a">Student roster needed — import it in Student Leave → Roster first.<span class="en">需要學生名冊：請先到「Student Leave 學生請假」→「Roster 名冊匯入」匯入名冊。</span></div>'; return; }
+  if (!LB || !LB.rosterReady || !LB.rosterReady()) { box.innerHTML = '<div class="notice-hint" style="color:#b0520a">Student roster needed — import it in Admin Settings → Student Roster.<span class="en">需要學生名冊：請由管理員到「Admin Settings 管理員設定」→「Student Roster 學生名冊」匯入。</span></div>'; return; }
   FX.amb = FX.amb || []; FX.miss = FX.miss || [];
   var cur = fxLinked().filter(function(x){ return FX.remove.indexOf(x.id) < 0; }).map(function(x){ return { s: x.s, isNew: false }; });
   FX.add.forEach(function(id){ cur.push({ s: LB.student(id) || { id: id }, isNew: true }); });
@@ -5132,6 +5141,30 @@ function wcHistSectionHtml() {
 function toggleEvHist(btn) { var it = btn.closest('.event-item'); if (!it) return; var box = it.nextElementSibling; if (box && box.classList.contains('wc-hist-box')) { box.remove(); return; }
   var k = btn.getAttribute('data-k'), e = allEvents.concat(allEventsDeleted).find(function(x){ return x.fbKey === k; }); if (!e) return;
   it.insertAdjacentHTML('afterend', '<div class="wc-hist-box">' + evHistHtml(e) + '</div>'); }
+
+// ─── 管理員設定：學生名冊 Admin Settings: student roster ───
+function calRosterRender(msg) {
+  var el = document.getElementById('cal-roster-status'); if (!el) return;
+  var LB = window.LeaveBridge, info = LB && LB.rosterInfo ? LB.rosterInfo() : null, h = '';
+  if (!info || !info.ready) h = 'Loading… 讀取中…';
+  else if (!info.n) h = '<b style="color:#b0520a">No roster yet 尚未匯入名冊</b>';
+  else { var d = info.updatedAt ? new Date(info.updatedAt) : null;
+    h = '<b>' + info.n + '</b> students · <b>' + info.classes + '</b> classes<span class="en">目前 ' + info.n + ' 位學生、' + info.classes + ' 個班級'
+      + (d ? '，更新於 ' + d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') : '')
+      + (info.source ? '（' + esc(info.source) + '）' : '') + '</span>'; }
+  if (info && info.mode === 'local') h += '<div style="margin-top:4px;opacity:.8">Local mode — saved in this browser only. 本機模式：名冊只存在這台電腦；放上網站後會存到雲端。</div>';
+  el.innerHTML = (msg ? '<div style="margin-bottom:6px">' + msg + '</div>' : '') + h;
+}
+async function calRosterImport(inp) {
+  var f = inp.files && inp.files[0]; if (!f) return;
+  var LB = window.LeaveBridge;
+  if (!LB || !LB.importRoster) { calRosterRender('<b style="color:#c62828">Not ready yet, try again in a moment. 系統尚未載入完成，請稍後再試。</b>'); return; }
+  calRosterRender('Importing… 匯入中…');
+  try { var n = await LB.importRoster(f); showToast('Roster imported 名冊已匯入 ✓');
+    setTimeout(function(){ calRosterRender('<b style="color:#1b7a3a">✓ Imported ' + n + ' students 已匯入 ' + n + ' 位學生</b>'); if (typeof render === 'function') render(); if (typeof fxRenderStu === 'function') fxRenderStu(); }, 300); }
+  catch (e) { var hint = LB.cloudHint ? LB.cloudHint(e) : ''; calRosterRender('<b style="color:#c62828">Import failed 匯入失敗</b>：' + esc(hint || (e && e.message) || String(e))); }
+  inp.value = '';
+}
 
 // ─── Render single item ──────────────────────────────────────────
 function renderItem(e, isPast, isSearching) {
@@ -6311,6 +6344,11 @@ window.LeaveBridge = {
 /* Notice 頁的學生公假名單 student official-leave list used by the Notice editor */
 Object.assign(window.LeaveBridge, {
   rosterReady: () => leaveDataReady && S.roster.length>0 && !S.isStudent,
+  // 名冊狀態與匯入（供「管理員設定」使用）roster status & import for Admin Settings
+  rosterInfo: () => ({ ready: !!leaveDataReady, n: S.roster.length, classes: S.classes.length, updatedAt: S.rosterMeta?.updatedAt||null, source: S.rosterMeta?.source||'', mode: DB?.mode||'' }),
+  async importRoster(f){ const list=await loadXLSX().then(()=>parseFile(f)); if(!list.length) throw new Error('No students found in this file 檔案中找不到學生資料');
+    await withTimeout(DB.saveRoster({students:list, updatedAt:Date.now(), source:f.name||'', by:(window.auth&&window.auth.name)||'local'})); await withTimeout(DB.saveRosterPublic(list)); return list.length; },
+  cloudHint: e => cloudHint(e),
   classes: () => S.classes.slice(),
   studentsOf: cls => (S.byCls.get(cls)||[]).map(s=>({id:s.id, cls:s.cls, seat:s.seat, name:s.name, alias:s.alias})),
   student: id => S.byId.get(id) || null,
